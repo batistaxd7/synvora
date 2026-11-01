@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: perfil } = await supabase
+  const { data: perfil, error: erroPerfil } = await supabase
     .from("perfis")
     .select("nome, papel, lojas(nome)")
     .eq("id", user.id)
@@ -32,7 +32,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </nav>
         <div className="muted" style={{ padding: "0 8px", lineHeight: 1.5 }}>
           Loja: {loja}<br />
-          {perfil?.nome} ({perfil?.papel})
+          {perfil ? `${perfil.nome} (${perfil.papel})` : "Perfil não carregado"}
+          {erroPerfil && <><br /><small>Erro: {erroPerfil.message}</small></>}
         </div>
         <form action={sair}>
           <button className="btn btn-ghost" style={{ width: "100%" }} type="submit">Sair</button>
