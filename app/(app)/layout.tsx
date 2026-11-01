@@ -29,6 +29,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <nav>
           <Link className="nav-item" href="/painel">Painel</Link>
           <Link className="nav-item" href="/estoque">Estoque</Link>
+          {perfil?.papel === "dono" && <Link className="nav-item" href="/equipe">Equipe</Link>}
+          {["Caixa", "Pedidos", "Clientes", "Gastos", "Financeiro", "Tarefas", "Suporte"].map((n) => (
+            <Link key={n} className="nav-item" href={`/em-breve/${n.toLowerCase()}`} style={{ opacity: 0.6 }}>{n}<span className="badge badge-warn" style={{ marginLeft: "auto", fontSize: 10 }}>em breve</span></Link>
+          ))}
         </nav>
         <div className="muted" style={{ padding: "0 8px", lineHeight: 1.5 }}>
           Loja: {loja}<br />
