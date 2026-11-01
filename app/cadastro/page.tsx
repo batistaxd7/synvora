@@ -22,7 +22,8 @@ async function criarConta(formData: FormData) {
     options: { data: { loja_nome: loja, nome, usuario, email_recuperacao: email } },
   });
   if (error) {
-    redirect(`/cadastro?erro=${error.message.toLowerCase().includes("already") ? "existe" : "geral"}`);
+    const tipo = error.message.toLowerCase().includes("already") ? "existe" : "geral";
+    redirect(`/cadastro?erro=${tipo}&detalhe=${encodeURIComponent(error.message.slice(0, 200))}`);
   }
   if (!data.session) redirect("/cadastro?erro=confirmacao");
   redirect("/painel");
@@ -37,7 +38,7 @@ const MENSAGENS: Record<string, string> = {
   geral: "Não foi possível criar a conta. Tente de novo.",
 };
 
-export default function Cadastro({ searchParams }: { searchParams: { erro?: string } }) {
+export default function Cadastro({ searchParams }: { searchParams: { erro?: string; detalhe?: string } }) {
   const erro = searchParams.erro ? MENSAGENS[searchParams.erro] ?? MENSAGENS.geral : null;
   return (
     <main className="auth">
@@ -46,7 +47,7 @@ export default function Cadastro({ searchParams }: { searchParams: { erro?: stri
           <h1 style={{ fontSize: 24 }}>Criar conta da loja</h1>
           <p className="muted">Você será o dono da loja e poderá criar usuários para a equipe depois.</p>
         </div>
-        {erro && <div className="erro">{erro}</div>}
+        {erro && <div className="erro">{erro}{searchParams.detalhe && <><br /><small>Detalhe técnico: {searchParams.detalhe}</small></>}</div>}
         <label className="field">Nome da loja<input className="input" name="loja" required /></label>
         <label className="field">Seu nome<input className="input" name="nome" required /></label>
         <label className="field">Nome de usuário (para entrar)<input className="input" name="usuario" autoComplete="username" placeholder="ex: maria.loja" required /></label>
