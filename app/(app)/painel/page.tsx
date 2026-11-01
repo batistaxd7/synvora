@@ -2,8 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function Painel() {
   const supabase = createClient();
-  const { data: produtos } = await supabase.from("produtos").select("nome, saldo");
+  const { data: produtos } = await supabase.from("produtos").select("nome, saldo, preco");
   const total = produtos?.length ?? 0;
+  const valor = (produtos ?? []).reduce((t, p) => t + Number(p.preco) * p.saldo, 0);
   const baixos = (produtos ?? []).filter((p) => p.saldo <= 5);
 
   return (
@@ -13,8 +14,9 @@ export default async function Painel() {
         <p className="muted">Resumo da sua loja.</p>
       </div>
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
-        <div className="card"><div className="muted">Produtos cadastrados</div><div style={{ fontSize: 26, fontWeight: 700 }}>{total}</div></div>
-        <div className="card"><div className="muted">Com estoque baixo</div><div style={{ fontSize: 26, fontWeight: 700 }}>{baixos.length}</div></div>
+        <div className="stat"><span className="muted">Produtos cadastrados</span><b>{total}</b></div>
+        <div className="stat"><span className="muted">Com estoque baixo</span><b>{baixos.length}</b></div>
+        <div className="stat"><span className="muted">Valor em estoque</span><b>R$ {valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</b></div>
       </section>
       <section className="card">
         <h2 style={{ margin: "0 0 12px", fontSize: 16 }}>Precisa repor</h2>

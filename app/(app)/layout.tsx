@@ -1,6 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import Sidebar from "@/components/Sidebar";
+import ThemeToggle from "@/components/ThemeToggle";
 
 async function sair() {
   "use server";
@@ -24,26 +25,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="shell">
-      <aside className="side">
-        <div style={{ fontWeight: 700, fontSize: 19, padding: "0 8px" }}>Synvora</div>
-        <nav>
-          <Link className="nav-item" href="/painel">Painel</Link>
-          <Link className="nav-item" href="/estoque">Estoque</Link>
-          {perfil?.papel === "dono" && <Link className="nav-item" href="/equipe">Equipe</Link>}
-          {["Caixa", "Pedidos", "Clientes", "Gastos", "Financeiro", "Tarefas", "Suporte"].map((n) => (
-            <Link key={n} className="nav-item" href={`/em-breve/${n.toLowerCase()}`} style={{ opacity: 0.6 }}>{n}<span className="badge badge-warn" style={{ marginLeft: "auto", fontSize: 10 }}>em breve</span></Link>
-          ))}
-        </nav>
-        <div className="muted" style={{ padding: "0 8px", lineHeight: 1.5 }}>
-          Loja: {loja}<br />
-          {perfil ? `${perfil.nome} (${perfil.papel})` : "Perfil não carregado"}
-          {erroPerfil && <><br /><small>Erro: {erroPerfil.message}</small></>}
+      <Sidebar loja={loja} papel={perfil?.papel ?? "vendedor"} nome={perfil?.nome ?? "Usuário"} />
+      <div className="content">
+        <div className="topbar">
+          <ThemeToggle />
+          <form action={sair}>
+            <button className="btn btn-ghost" style={{ minHeight: 44 }} type="submit">Sair</button>
+          </form>
         </div>
-        <form action={sair}>
-          <button className="btn btn-ghost" style={{ width: "100%" }} type="submit">Sair</button>
-        </form>
-      </aside>
-      <main className="main">{children}</main>
+        {erroPerfil && <div className="erro">Não foi possível carregar o perfil: {erroPerfil.message}</div>}
+        <main className="main">{children}</main>
+      </div>
     </div>
   );
 }
