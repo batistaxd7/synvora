@@ -30,7 +30,7 @@ async function criarConta(formData: FormData) {
 
 const MENSAGENS: Record<string, string> = {
   dados: "Preencha todos os campos.",
-  usuario: "O usuário deve ter de 3 a 30 caracteres: letras, números, ponto, traço ou sublinhado.",
+  usuario: "O usuário deve ter de 3 a 30 caracteres, sem espaços, acentos nem @. Use só letras, números, ponto, traço ou sublinhado. Exemplo: maria.loja",
   senha: "A senha precisa ter pelo menos 8 caracteres.",
   existe: "Esse nome de usuário já está em uso. Escolha outro.",
   confirmacao: "A confirmação de e-mail do Supabase precisa estar desligada (veja o README).",
@@ -49,7 +49,7 @@ export default function Cadastro({ searchParams }: { searchParams: { erro?: stri
         {erro && <div className="erro">{erro}</div>}
         <label className="field">Nome da loja<input className="input" name="loja" required /></label>
         <label className="field">Seu nome<input className="input" name="nome" required /></label>
-        <label className="field">Nome de usuário (para entrar)<input className="input" name="usuario" autoComplete="username" required /></label>
+        <label className="field">Nome de usuário (para entrar)<input className="input" name="usuario" autoComplete="username" placeholder="ex: maria.loja" required /></label>
         <label className="field">
           E-mail (só para recuperar a senha)
           <input className="input" name="email" type="email" required />
