@@ -22,19 +22,31 @@ No Supabase, *SQL Editor > New query*, cole e clique em *Run*:
 2. `supabase/permissoes.sql`
 3. `supabase/equipe.sql`
 4. `supabase/seguranca.sql`
-5. `supabase/vendas.sql` (etapa 2: caixa, pedidos e recibo)
+5. `supabase/vendas.sql` (caixa, pedidos e recibo)
+6. `supabase/modulos.sql` (clientes, gastos, fornecedores, tarefas, avisos, suporte, perfil e logo)
 
-## Estado atual (etapa 2)
+### Virar atendente do suporte
 
-- Cadastro da loja e login por nome de usuário e senha
-- Dados separados por loja (RLS no banco)
-- Equipe: o dono cria acessos de vendedor/afiliado e caixa
-- Painel com vendido hoje, pedidos em andamento e estoque baixo
-- Estoque (cadastro e lista de produtos)
-- Frente de caixa: busca, carrinho, desconto, pagamento dividido (dinheiro, Pix, crédito, débito) e troco; o estoque baixa na hora
-- Pedidos: lista limpa com selo (não atendido, atendido, concluída, cancelada), filtros e busca; ao abrir, etapas novo → separando → pronto pra enviar → enviado → entregue com botão de avançar
-- Cancelamento pergunta se os produtos voltam ao estoque e registra quem cancelou
-- Recibo para imprimir (formato de bobina 80 mm)
-- Histórico de vendas guardado para sempre; pedidos só mudam pelas funções do banco
+Para responder os lojistas na tela **Atendimento**, rode uma vez no SQL Editor (troque pelo seu usuário):
 
-Ainda não feito: abertura/fechamento de caixa, clientes, gastos, financeiro, tarefas, suporte, planos, importação de planilha, fotos, registro de atividades.
+```sql
+insert into public.atendentes (user_id) select id from public.perfis where usuario = 'seu.usuario';
+```
+
+## Estado atual (etapa 3)
+
+- Login por usuário e senha; dados separados por loja (RLS)
+- Painel, Estoque, Equipe
+- Frente de caixa com pagamento dividido, troco e sugestão de clientes
+- Pedidos com selo de status, etapas, cancelamento com devolução ao estoque e recibo
+- Clientes (cadastro, busca e total comprado)
+- Gastos da empresa por mês, com categorias, pago/a pagar e fornecedores
+- Financeiro: faturamento, gastos, lucro, ticket médio, vendas por dia, por forma de pagamento, vendedor, canal e categoria de gasto
+- Tarefas: dono cria para a equipe com prazo e prioridade; funcionário conclui com musiquinha e o dono recebe aviso
+- Avisos no sininho: estoque baixo, pedido novo, tarefa concluída, resposta do suporte
+- Perfil da loja: logo, dados, meu login, troca de senha e permissão de cada pessoa
+- Conta e plano: mensal, anual e vitalício (contratação pelo suporte)
+- Suporte por chat (lojista) e Atendimento (equipe Synvora)
+- Funcionário vê só caixa, pedidos, clientes, tarefas e suporte
+
+Ainda não feito: abertura/fechamento de caixa, fotos e importação de estoque por planilha, registro de atividades, cobrança automática dos planos, backup/exportação, ajuda/primeiros passos.

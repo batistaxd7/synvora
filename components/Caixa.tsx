@@ -19,7 +19,7 @@ function campo(v: number) {
 
 const CANAIS = ["Loja física", "WhatsApp", "Instagram", "Site", "Shopee", "Mercado Livre"];
 
-export default function Caixa({ produtos }: { produtos: Produto[] }) {
+export default function Caixa({ produtos, clientes = [] }: { produtos: Produto[]; clientes?: string[] }) {
   const [busca, setBusca] = useState("");
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([{ forma: "pix", valor: "" }]);
@@ -148,7 +148,7 @@ export default function Caixa({ produtos }: { produtos: Produto[] }) {
         ))}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <label className="field">Cliente (opcional)<input className="input" value={cliente} onChange={(e) => setCliente(e.target.value)} /></label>
+          <label className="field">Cliente (opcional)<input className="input" list="lista-clientes" value={cliente} onChange={(e) => setCliente(e.target.value)} /><datalist id="lista-clientes">{clientes.map((c) => <option key={c} value={c} />)}</datalist></label>
           <label className="field">Canal
             <select className="input" value={canal} onChange={(e) => setCanal(e.target.value)}>
               {CANAIS.map((c) => <option key={c}>{c}</option>)}

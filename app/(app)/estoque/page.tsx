@@ -1,8 +1,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { exigirDono } from "@/lib/perfil";
 
 async function criarProduto(formData: FormData) {
   "use server";
+  await exigirDono();
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
@@ -22,6 +24,7 @@ async function criarProduto(formData: FormData) {
 }
 
 export default async function Estoque() {
+  await exigirDono();
   const supabase = createClient();
   const { data: produtos } = await supabase
     .from("produtos")

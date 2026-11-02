@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const ROTAS_PRIVADAS = ["/painel", "/estoque", "/equipe", "/caixa", "/pedidos", "/recibo", "/em-breve"];
+const ROTAS_PRIVADAS = ["/painel", "/estoque", "/equipe", "/caixa", "/pedidos", "/recibo", "/em-breve", "/clientes", "/gastos", "/financeiro", "/tarefas", "/perfil-da-loja", "/conta-e-plano", "/suporte", "/atendimento"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

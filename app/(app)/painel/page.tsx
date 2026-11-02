@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { reais } from "@/lib/pedidos";
+import { exigirDono } from "@/lib/perfil";
 
 function inicioDoDiaSP() {
   const hoje = new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
@@ -8,6 +9,7 @@ function inicioDoDiaSP() {
 }
 
 export default async function Painel() {
+  await exigirDono();
   const supabase = createClient();
   const [{ data: produtos }, { data: vendasHoje }, { count: abertos }] = await Promise.all([
     supabase.from("produtos").select("nome, saldo, preco"),
