@@ -30,6 +30,14 @@ Para responder os lojistas na tela **Atendimento**, rode uma vez no SQL Editor (
 insert into public.atendentes (user_id) select id from public.perfis where usuario = 'seu.usuario';
 ```
 
+### Virar CEO (Painel do CEO)
+
+Para ver a tela **Painel do CEO** (todas as lojas, planos, receita, vagas do vitalício e suporte aberto), rode uma vez no SQL Editor (troque pelo seu usuário):
+
+```sql
+insert into public.ceos (user_id) select id from public.perfis where usuario = 'seu.usuario';
+```
+
 ## Estado atual (etapa 3)
 
 - Login por usuário e senha; dados separados por loja (RLS)

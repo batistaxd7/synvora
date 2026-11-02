@@ -7,7 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Avisos from "@/components/Avisos";
 
 // Suba este número junto com supabase/versao.sql quando o banco mudar
-const VERSAO_BANCO = 5;
+const VERSAO_BANCO = 6;
 
 async function sair() {
   "use server";
@@ -31,13 +31,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = createClient();
 
   // Tudo de uma vez, em paralelo (antes era uma consulta depois da outra)
-  const [perfil, avisos, atendente, baixos, lojaRes, versao] = await Promise.all([
+  const [perfil, avisos, atendente, baixos, lojaRes, versao, ceo] = await Promise.all([
     perfilAtual(),
     supabase.from("avisos").select("id, texto, link, lido, criado_em").eq("para_id", user.id).order("criado_em", { ascending: false }).limit(15),
     supabase.rpc("sou_atendente"),
     supabase.from("produtos").select("id", { count: "exact", head: true }).lte("saldo", 5),
     supabase.from("lojas").select("*").limit(1).maybeSingle(),
     supabase.rpc("versao_banco"),
+    supabase.rpc("sou_ceo"),
   ]);
   const bancoDesatualizado = typeof versao.data !== "number" || versao.data < VERSAO_BANCO;
   const dono = perfil?.papel === "dono";
@@ -45,7 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="shell">
-      <Sidebar loja={loja?.nome ?? "Minha loja"} logo={loja?.logo_url ?? null} papel={perfil?.papel ?? "vendedor"} nome={perfil?.nome ?? "Usuário"} atendente={atendente.data === true} />
+      <Sidebar loja={loja?.nome ?? "Minha loja"} logo={loja?.logo_url ?? null} papel={perfil?.papel ?? "vendedor"} nome={perfil?.nome ?? "Usuário"} atendente={atendente.data === true} ceo={ceo.data === true} />
       <div className="content">
         <div className="topbar">
           <Avisos avisos={avisos.data ?? []} estoqueBaixo={dono ? baixos.count ?? 0 : 0} marcarLidos={marcarLidos} />

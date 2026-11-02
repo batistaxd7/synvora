@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type Item = { label: string; href: string; icon: string; donoSo?: boolean; atendenteSo?: boolean };
+type Item = { label: string; href: string; icon: string; donoSo?: boolean; atendenteSo?: boolean; ceoSo?: boolean };
 
 const ITENS: Item[] = [
   { label: "Painel", href: "/painel", icon: "M3 11l9-8 9 8M5 10v10h14V10", donoSo: true },
@@ -19,11 +19,12 @@ const ITENS: Item[] = [
   { label: "Conta e plano", href: "/conta-e-plano", icon: "M2 6h20v12H2zM2 10h20", donoSo: true },
   { label: "Suporte", href: "/suporte", icon: "M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12z" },
   { label: "Atendimento", href: "/atendimento", icon: "M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z", atendenteSo: true },
+  { label: "Painel do CEO", href: "/ceo", icon: "M2 20h20M4 20V9l4 3 4-7 4 7 4-3v11", ceoSo: true },
 ];
 
 const PAPEL: Record<string, string> = { dono: "Dono", vendedor: "Vendedor / Afiliado", caixa: "Caixa" };
 
-export default function Sidebar({ loja, logo, papel, nome, atendente }: { loja: string; logo: string | null; papel: string; nome: string; atendente: boolean }) {
+export default function Sidebar({ loja, logo, papel, nome, atendente, ceo = false }: { loja: string; logo: string | null; papel: string; nome: string; atendente: boolean; ceo?: boolean }) {
   const caminho = usePathname();
   const [aberta, setAberta] = useState(true);
   const [giro, setGiro] = useState(0);
@@ -55,7 +56,7 @@ export default function Sidebar({ loja, logo, papel, nome, atendente }: { loja: 
   }
   const rotulos = aberta || celular;
 
-  const itens = ITENS.filter((i) => (!i.donoSo || papel === "dono") && (!i.atendenteSo || atendente));
+  const itens = ITENS.filter((i) => (!i.donoSo || papel === "dono") && (!i.atendenteSo || atendente) && (!i.ceoSo || ceo));
 
   return (
     <aside className={`side${aberta ? "" : " fechada"}`} style={{ width: aberta ? 232 : 76 }}>
