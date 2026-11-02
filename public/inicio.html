@@ -66,44 +66,72 @@ a{color:#C9BEF5}a:hover{color:#FFFFFF}
 .so-cel{display:none}
 @media (max-width:760px){.so-pc{display:none}.so-cel{display:block}}
 
-/* Abertura: luz girando em volta do S, bate nele e acende o fundo roxo */
-#intro{position:fixed;inset:0;z-index:100;background:#0F0B1F;display:flex;align-items:center;justify-content:center;animation:intro-sai .6s ease 2.5s forwards}
-@keyframes intro-sai{to{opacity:0;visibility:hidden}}
-.lg{position:relative;width:170px;height:170px}
-.lg-bg{position:absolute;inset:0;border-radius:48px;background:#6A55B5;transform:scale(0);box-shadow:0 30px 90px rgba(106,85,181,.6);animation:lg-bg .7s cubic-bezier(.3,1.6,.4,1) 1.45s forwards}
-@keyframes lg-bg{0%{transform:scale(.15)}100%{transform:scale(1)}}
-.lg-ring{position:absolute;left:50%;top:50%;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;border:4px solid #C9BEF5;opacity:0;animation:lg-ring .9s ease-out 1.45s forwards}
-@keyframes lg-ring{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(2.6)}}
-.lg-flash{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:#fff;opacity:0;filter:blur(6px);animation:lg-flash .5s ease-out 1.42s forwards}
-@keyframes lg-flash{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(3.4)}}
-.lg svg{position:absolute;inset:0;width:100%;height:100%}
-.lg-s{stroke:#C9BEF5;stroke-dasharray:60;stroke-dashoffset:60;animation:lg-desenha .9s ease .1s forwards,lg-branco .3s ease 1.45s forwards}
-@keyframes lg-desenha{to{stroke-dashoffset:0}}
-@keyframes lg-branco{to{stroke:#fff}}
-.lg-giro{position:absolute;left:50%;top:50%;width:0;height:0;animation:lg-giro 1.45s cubic-bezier(.45,0,.9,.6) forwards}
-@keyframes lg-giro{from{transform:rotate(0)}to{transform:rotate(900deg)}}
-.lg-orb{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:#fff;box-shadow:0 0 14px 4px #C9BEF5,0 0 40px 10px rgba(132,112,203,.8);animation:lg-espiral 1.45s cubic-bezier(.5,0,1,.7) forwards}
-.lg-orb.r1{width:14px;height:14px;margin:-7px 0 0 -7px;opacity:.55;animation-delay:.06s}
-.lg-orb.r2{width:9px;height:9px;margin:-4.5px 0 0 -4.5px;opacity:.3;animation-delay:.12s}
-@keyframes lg-espiral{0%{transform:translateX(150px)}92%{transform:translateX(18px);opacity:1}100%{transform:translateX(0) scale(.2);opacity:0}}
-.lg-nome{position:absolute;left:50%;top:205px;transform:translateX(-50%);font-family:Sora,sans-serif;font-weight:800;font-size:40px;letter-spacing:-.03em;color:#EEEAF8;opacity:0;animation:lg-nome .6s ease 1.75s forwards;white-space:nowrap}
-@keyframes lg-nome{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+/* Abertura: gota gira em volta do S, bate nele e o roxo se espalha como líquido */
+#intro{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% 45%,#1C1638 0%,#0F0B1F 60%);display:flex;align-items:center;justify-content:center;border:0;padding:0;margin:0;width:100%;cursor:pointer;color:#EEEAF8;font:inherit}
+#intro.sai{animation:in-sai .75s cubic-bezier(.6,0,.4,1) forwards}
+@keyframes in-sai{0%{opacity:1}100%{opacity:0;visibility:hidden;transform:scale(1.06)}}
+.lg{position:relative;width:180px;height:180px}
+.lg-bg{position:absolute;inset:0;border-radius:52px;background:radial-gradient(circle at 50% 30%,#8470CB,#6A55B5 55%,#4A3C86);clip-path:circle(0% at 50% 50%);box-shadow:0 30px 100px rgba(106,85,181,0)}
+#intro.go .lg-bg{animation:in-liquido 1s cubic-bezier(.2,.8,.2,1) 1.5s forwards}
+@keyframes in-liquido{0%{clip-path:circle(0% at 56% 40%)}45%{clip-path:circle(62% at 52% 46%)}70%{clip-path:circle(56% at 50% 50%)}100%{clip-path:circle(75% at 50% 50%);box-shadow:0 30px 100px rgba(106,85,181,.65)}}
+#intro.go .lg-caixa{animation:in-bate .7s cubic-bezier(.3,1.7,.5,1) 1.5s both}
+.lg-caixa{position:absolute;inset:0}
+@keyframes in-bate{0%{transform:scale(1)}25%{transform:scale(.88,1.08)}55%{transform:scale(1.1,.94)}100%{transform:scale(1)}}
+.lg svg.s{position:absolute;inset:0;width:100%;height:100%}
+.lg-s{stroke:#C9BEF5;stroke-dasharray:60;stroke-dashoffset:60;animation:in-desenha 1.1s ease .2s forwards}
+#intro.go .lg-s{animation:in-desenha .01s forwards,in-branco .25s ease 1.5s forwards}
+@keyframes in-desenha{to{stroke-dashoffset:0}}
+@keyframes in-branco{to{stroke:#fff}}
+.lg-onda{position:absolute;left:50%;top:50%;width:180px;height:180px;margin:-90px 0 0 -90px;border-radius:50%;border:3px solid #C9BEF5;opacity:0}
+#intro.go .lg-onda{animation:in-onda 1.2s cubic-bezier(.1,.6,.3,1) forwards}
+#intro.go .o1{animation-delay:1.5s}#intro.go .o2{animation-delay:1.65s;border-width:2px}#intro.go .o3{animation-delay:1.8s;border-width:1px}
+@keyframes in-onda{0%{opacity:.9;transform:scale(.15)}100%{opacity:0;transform:scale(3.2)}}
+.lg-flash{position:absolute;left:56%;top:40%;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:#fff;opacity:0;filter:blur(8px)}
+#intro.go .lg-flash{animation:in-flash .55s ease-out 1.48s forwards}
+@keyframes in-flash{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(3.6)}}
+.lg-giro{position:absolute;left:50%;top:50%;width:0;height:0;opacity:0}
+#intro.go .lg-giro{opacity:1;animation:in-giro 1.5s cubic-bezier(.4,0,.95,.55) forwards}
+@keyframes in-giro{from{transform:rotate(-40deg)}to{transform:rotate(1040deg)}}
+.gota{position:absolute;left:0;top:0;width:26px;height:38px;margin:-30px 0 0 -13px;transform-origin:13px 30px;filter:drop-shadow(0 0 8px #C9BEF5) drop-shadow(0 0 20px rgba(132,112,203,.9))}
+.gota svg{width:100%;height:100%;display:block}
+#intro.go .gota{animation:in-espiral 1.5s cubic-bezier(.55,0,1,.75) forwards}
+#intro.go .g1{animation-delay:.05s}#intro.go .g2{animation-delay:.1s}#intro.go .g3{animation-delay:.15s}
+.g1{width:18px;height:27px;margin:-22px 0 0 -9px;transform-origin:9px 22px;opacity:.6}
+.g2{width:12px;height:18px;margin:-15px 0 0 -6px;transform-origin:6px 15px;opacity:.4}
+.g3{width:8px;height:12px;margin:-10px 0 0 -4px;transform-origin:4px 10px;opacity:.25}
+@keyframes in-espiral{0%{transform:translateX(165px) scale(.8,.9)}60%{transform:translateX(105px) scale(.9,1.25)}93%{transform:translateX(26px) scale(.85,1.6);opacity:1}100%{transform:translateX(16px) scale(1.8,.3);opacity:0}}
+.respingo{position:absolute;left:56%;top:40%;width:0;height:0;opacity:0}
+.respingo i{position:absolute;width:10px;height:15px;margin:-7px 0 0 -5px;background:#C9BEF5;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;box-shadow:0 0 10px #A898E8}
+#intro.go .respingo{animation:in-resp 0s 1.5s forwards}
+#intro.go .respingo i{animation:in-voa .75s cubic-bezier(.15,.7,.3,1) 1.5s both}
+@keyframes in-resp{to{opacity:1}}
+@keyframes in-voa{0%{transform:rotate(var(--a)) translateX(10px) scale(1);opacity:1}100%{transform:rotate(var(--a)) translateX(var(--d)) scale(.2);opacity:0}}
+.lg-nome{color:#EEEAF8;position:absolute;left:50%;top:220px;transform:translateX(-50%);font-family:Sora,sans-serif;font-weight:800;font-size:44px;letter-spacing:-.03em;opacity:0;white-space:nowrap}
+#intro.go .lg-nome{animation:in-nome .7s cubic-bezier(.2,.7,.2,1) 2.05s forwards}
+@keyframes in-nome{from{opacity:0;transform:translate(-50%,18px);filter:blur(8px)}to{opacity:1;transform:translate(-50%,0);filter:none}}
+.lg-toque{font-family:'DM Sans',system-ui,sans-serif;position:absolute;left:50%;top:228px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:16px;font-weight:700;color:#C9BEF5;padding:12px 20px;border-radius:999px;border:1px solid rgba(201,190,245,.35);background:rgba(27,22,51,.6);animation:in-pisca 1.8s ease-in-out infinite}
+#intro.go .lg-toque{animation:in-some .3s forwards}
+@keyframes in-pisca{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes in-some{to{opacity:0;transform:translate(-50%,10px)}}
+#intro:focus-visible{outline:none}#intro:focus-visible .lg-toque{outline:2px solid #C9BEF5;outline-offset:4px}
 body.na-intro{overflow:hidden}
-body.na-intro .rise,body.na-intro .pop,body.na-intro .num{animation-play-state:paused}
+body.na-intro .rise,body.na-intro .pop{animation-play-state:paused}
 @media (prefers-reduced-motion: reduce){#intro{display:none}}
 </style>
 </head>
 <body class="na-intro">
-<div id="intro" aria-hidden="true">
+<button type="button" id="intro" aria-label="Abrir a apresentação do Synvora">
 <div class="lg">
-<div class="lg-bg"></div>
-<div class="lg-ring"></div>
+<div class="lg-onda o1"></div><div class="lg-onda o2"></div><div class="lg-onda o3"></div>
+<div class="lg-caixa"><div class="lg-bg"></div>
+<svg class="s" viewBox="0 0 34 34" aria-hidden="true"><path class="lg-s" d="M22 11.5c-1.2-1.3-3-2-5-2-3 0-5 1.6-5 3.8 0 4.9 10 2.9 10 7.6 0 2.2-2.2 3.8-5.2 3.8-2.2 0-4.1-.8-5.3-2.2" fill="none" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
 <div class="lg-flash"></div>
-<svg viewBox="0 0 34 34"><path class="lg-s" d="M22 11.5c-1.2-1.3-3-2-5-2-3 0-5 1.6-5 3.8 0 4.9 10 2.9 10 7.6 0 2.2-2.2 3.8-5.2 3.8-2.2 0-4.1-.8-5.3-2.2" fill="none" stroke-width="2.6" stroke-linecap="round"></path></svg>
-<div class="lg-giro"><div class="lg-orb r2"></div><div class="lg-orb r1"></div><div class="lg-orb"></div></div>
+<div class="respingo"><i style="--a:-170deg;--d:120px"></i><i style="--a:-130deg;--d:150px"></i><i style="--a:-95deg;--d:130px"></i><i style="--a:-55deg;--d:160px"></i><i style="--a:-15deg;--d:125px"></i><i style="--a:25deg;--d:145px"></i><i style="--a:70deg;--d:115px"></i><i style="--a:115deg;--d:140px"></i><i style="--a:150deg;--d:125px"></i><i style="--a:195deg;--d:110px"></i></div>
+<div class="lg-giro"><div class="gota g3"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div><div class="gota g2"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div><div class="gota g1"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div><div class="gota"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div></div>
 <div class="lg-nome">Synvora</div>
+<div class="lg-toque"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/></svg>Toque para abrir</div>
 </div>
-</div>
+</button>
 
 
 
@@ -419,7 +447,7 @@ requestAnimationFrame(passo)})}).catch(function(){})})();
 (function(){[].forEach.call(document.querySelectorAll('.num'),function(el){var alvo=+el.getAttribute('data-to'),t0=null;
 if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;el.textContent='0';
 function passo(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/2200),e=1-Math.pow(1-p,3);el.textContent=Math.round(alvo*e).toLocaleString('pt-BR');if(p<1)requestAnimationFrame(passo)}
-setTimeout(function(){requestAnimationFrame(passo)},800+(document.body.classList.contains('na-intro')?2600:0))})})();
+(function espera(){if(document.body.classList.contains('na-intro'))return setTimeout(espera,200);setTimeout(function(){requestAnimationFrame(passo)},700)})()})})();
 </script>
 <script>
 (function(){var cel=window.matchMedia('(max-width:760px)').matches;var v=document.querySelector((cel?'.so-cel':'.so-pc')+' video');
@@ -428,10 +456,35 @@ v.addEventListener('error',function(){if(!cel&&v.src.indexOf('deitado')>-1){v.sr
 if('IntersectionObserver' in window){new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){var p=v.play();p&&p.catch(function(){})}else{v.pause()}})},{threshold:.4}).observe(v)}else{v.autoplay=true}})();
 </script>
 <script>
-(function(){var r=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-function fim(){document.body.classList.remove('na-intro');var el=document.getElementById('intro');if(el)setTimeout(function(){el.remove()},700)}
-if(r){fim()}else{setTimeout(fim,2600)}
-var i=document.getElementById('intro');if(i)i.addEventListener('click',fim)})();
+(function(){
+var el=document.getElementById('intro');if(!el)return;
+var reduz=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function fim(){document.body.classList.remove('na-intro');el.classList.add('sai');setTimeout(function(){el.remove()},800)}
+if(reduz){fim();return}
+var foi=false,auto=setTimeout(function(){go(false)},6000);
+function sons(){try{
+  var C=new(window.AudioContext||window.webkitAudioContext)(),t=C.currentTime+.02,M=C.createGain();M.gain.value=.55;M.connect(C.destination);
+  function ruido(d){var b=C.createBuffer(1,C.sampleRate*d,C.sampleRate),x=b.getChannelData(0);for(var i=0;i<x.length;i++)x[i]=Math.random()*2-1;var s=C.createBufferSource();s.buffer=b;return s}
+  // giro: vento subindo de tom e de força
+  var n=ruido(1.6),f=C.createBiquadFilter(),g=C.createGain();f.type='bandpass';f.Q.value=3;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(2600,t+1.5);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.5,t+1.35);g.gain.linearRampToValueAtTime(0,t+1.55);n.connect(f);f.connect(g);g.connect(M);n.start(t);
+  var tb=t+1.5;
+  // batida da gota: "plop" líquido + pancada grave
+  var o=C.createOscillator(),og=C.createGain();o.type='sine';o.frequency.setValueAtTime(1200,tb);o.frequency.exponentialRampToValueAtTime(180,tb+.14);
+  og.gain.setValueAtTime(0,tb);og.gain.linearRampToValueAtTime(.9,tb+.005);og.gain.exponentialRampToValueAtTime(.001,tb+.22);o.connect(og);og.connect(M);o.start(tb);o.stop(tb+.25);
+  var k=C.createOscillator(),kg=C.createGain();k.frequency.setValueAtTime(140,tb);k.frequency.exponentialRampToValueAtTime(45,tb+.3);
+  kg.gain.setValueAtTime(.9,tb);kg.gain.exponentialRampToValueAtTime(.001,tb+.45);k.connect(kg);kg.connect(M);k.start(tb);k.stop(tb+.5);
+  // respingos
+  var r=ruido(.4),rf=C.createBiquadFilter(),rg=C.createGain();rf.type='highpass';rf.frequency.value=3500;rg.gain.setValueAtTime(.35,tb);rg.gain.exponentialRampToValueAtTime(.001,tb+.35);r.connect(rf);rf.connect(rg);rg.connect(M);r.start(tb);
+  [0.09,0.17,0.26].forEach(function(d,i){var b=C.createOscillator(),bg=C.createGain(),tt=tb+d;b.frequency.setValueAtTime(1800-i*300,tt);b.frequency.exponentialRampToValueAtTime(700-i*100,tt+.06);
+    bg.gain.setValueAtTime(.18,tt);bg.gain.exponentialRampToValueAtTime(.001,tt+.08);b.connect(bg);bg.connect(M);b.start(tt);b.stop(tt+.1)});
+  // abertura: brilho subindo
+  [1046.5,1318.5,1568,2093,2637].forEach(function(fq,i){var a=C.createOscillator(),ag=C.createGain(),ta=t+2.0+i*.08;a.type='sine';a.frequency.value=fq;
+    ag.gain.setValueAtTime(0,ta);ag.gain.linearRampToValueAtTime(.16,ta+.02);ag.gain.exponentialRampToValueAtTime(.001,ta+1.2);a.connect(ag);ag.connect(M);a.start(ta);a.stop(ta+1.3)});
+}catch(e){}}
+function go(comSom){if(foi){fim();return}foi=true;clearTimeout(auto);if(comSom)sons();el.classList.add('go');setTimeout(fim,3100)}
+el.addEventListener('click',function(){go(true)});
+})();
 </script>
 </body>
 </html>
