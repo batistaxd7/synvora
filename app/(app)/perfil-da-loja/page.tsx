@@ -4,7 +4,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdmin, SEM_CHAVE_ADMIN } from "@/lib/supabase/admin";
 import { exigirDono, texto } from "@/lib/perfil";
+import { headers } from "next/headers";
 import EnviarFoto from "@/components/EnviarFoto";
+import Copiar from "@/components/Copiar";
 
 const PAPEIS: Record<string, string> = { dono: "Dono", vendedor: "Vendedor / Afiliado", caixa: "Caixa" };
 
@@ -79,7 +81,17 @@ async function alterarMembro(f: FormData) {
   redirect("/perfil-da-loja?ok=membro");
 }
 
-const OK: Record<string, string> = { loja: "Dados da loja salvos.", login: "Seu login foi atualizado.", membro: "Acesso atualizado." };
+async function novoLinkCatalogo() {
+  "use server";
+  await exigirDono();
+  const supabase = createClient();
+  const { error } = await supabase.rpc("novo_catalogo_token");
+  if (error) redirect(`/perfil-da-loja?erro=${encodeURIComponent(error.message.slice(0, 160))}`);
+  revalidatePath("/perfil-da-loja");
+  redirect("/perfil-da-loja?ok=catalogo");
+}
+
+const OK: Record<string, string> = { catalogo: "Link novo do catálogo criado. Troque também no Gerenciador de Comércio.", loja: "Dados da loja salvos.", login: "Seu login foi atualizado.", membro: "Acesso atualizado." };
 
 export default async function PerfilDaLoja({ searchParams }: { searchParams: { erro?: string; ok?: string } }) {
   const eu = await exigirDono();
@@ -88,6 +100,11 @@ export default async function PerfilDaLoja({ searchParams }: { searchParams: { e
     supabase.from("lojas").select("*").eq("id", eu.loja_id).single(),
     supabase.from("perfis").select("id, nome, usuario, papel").order("criado_em"),
   ]);
+  const { data: prods } = await supabase.from("produtos").select("id, foto_url, preco");
+  const totalProd = (prods ?? []).length;
+  const noCatalogo = (prods ?? []).filter((p) => p.foto_url && Number(p.preco) > 0).length;
+  const h = headers();
+  const origem = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
   const l = (loja ?? {}) as Record<string, string | null>;
 
   return (
@@ -113,6 +130,30 @@ export default async function PerfilDaLoja({ searchParams }: { searchParams: { e
         <label className="field">Endereço<input className="input" name="endereco" defaultValue={l.endereco ?? ""} /></label>
         <button className="btn" type="submit">Salvar dados da loja</button>
       </form>
+
+      <h2 style={{ margin: "8px 0 0", fontSize: 18 }}>Catálogo no Facebook e Instagram</h2>
+      <section className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {l.catalogo_token ? (
+          <>
+            <p className="muted" style={{ margin: 0 }}>Cole este link no Gerenciador de Comércio da Meta e seus produtos aparecem na loja do Facebook e do Instagram, com preço e estoque atualizando sozinhos.</p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <input className="input" style={{ flex: "1 1 260px", width: "auto" }} readOnly value={`${origem}/catalogo/${l.catalogo_token}`} aria-label="Link do catálogo" />
+              <Copiar texto={`${origem}/catalogo/${l.catalogo_token}`} />
+            </div>
+            <p className="muted" style={{ margin: 0 }}><b>{noCatalogo}</b> de {totalProd} produtos entram no catálogo. Só entram produtos com foto e preço.</p>
+            <ol style={{ margin: 0, paddingLeft: 20, fontSize: 14, lineHeight: 1.8, color: "var(--ink2)" }}>
+              <li>Abra o <a href="https://business.facebook.com/commerce" target="_blank" rel="noopener" style={{ color: "var(--accent-ink)", fontWeight: 700 }}>Gerenciador de Comércio</a> e crie um catálogo (tipo: E-commerce)</li>
+              <li>Vá em Catálogo → Fontes de dados → Adicionar itens → Feed de dados</li>
+              <li>Escolha &quot;Feed programado&quot;, cole o link acima e marque para atualizar todo dia</li>
+              <li>Ligue o catálogo à sua página do Facebook e ao Instagram</li>
+            </ol>
+            <p className="muted" style={{ margin: 0 }}>Quem tocar no produto no Facebook ou Instagram cai numa página do produto com botão de comprar pelo WhatsApp (usa o telefone da loja acima).</p>
+            <form action={novoLinkCatalogo}><button className="btn btn-ghost btn-sm" type="submit">Gerar link novo (o antigo para de funcionar)</button></form>
+          </>
+        ) : (
+          <div className="erro">Atualize o banco (tudo.sql no Supabase) para liberar o catálogo.</div>
+        )}
+      </section>
 
       <h2 style={{ margin: "8px 0 0", fontSize: 18 }}>Meu login</h2>
       <form action={salvarMeuLogin} className="card form-grid">

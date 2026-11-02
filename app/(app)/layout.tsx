@@ -7,7 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Avisos from "@/components/Avisos";
 
 // Suba este número junto com supabase/versao.sql quando o banco mudar
-const VERSAO_BANCO = 6;
+const VERSAO_BANCO = 7;
 
 async function sair() {
   "use server";
