@@ -60,7 +60,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <b>Falta atualizar o banco de dados.</b> Algumas telas não vão funcionar até isso ser feito (leva 1 minuto):<br />
             1. Abra o arquivo <a href="https://github.com/batistaxd7/synvora/blob/main/supabase/tudo.sql" target="_blank" rel="noopener" style={{ textDecoration: "underline", fontWeight: 600 }}>supabase/tudo.sql</a> e copie todo o conteúdo (botão “Copy raw file”).<br />
             2. No Supabase, vá em <b>SQL Editor &gt; New query</b>, cole e clique em <b>Run</b>.<br />
-            3. Volte aqui e atualize a página. Este aviso some sozinho.
+            3. Volte aqui e atualize a página. Este aviso some sozinho.<br />
+            <small style={{ opacity: .8 }}>
+              Se o Supabase perguntar sobre “destructive operations”, clique em <b>Run this query</b> (nenhum dado é apagado).
+              {versao.error ? ` Situação atual: ${versao.error.code ?? ""} ${versao.error.message.slice(0, 120)}` : versao.data != null ? ` Versão atual do banco: ${versao.data}, precisa ser ${VERSAO_BANCO}.` : ""}
+            </small>
           </div>
         )}
         <main className="main">{children}</main>

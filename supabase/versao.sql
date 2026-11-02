@@ -2,3 +2,6 @@
 create or replace function public.versao_banco()
 returns integer language sql stable as $$ select 5 $$;
 grant execute on function public.versao_banco() to anon, authenticated;
+
+-- Faz o Supabase enxergar na hora as tabelas e funções novas
+notify pgrst, 'reload schema';
