@@ -237,3 +237,10 @@ html[data-theme="dark"] .card,html[data-theme="dark"] .stat,html[data-theme="dar
 
 @media (prefers-reduced-motion:reduce){body::before,body::after,.stat b,.side-head .icon-btn svg{animation:none!important}}
 @media print{body::before,body::after{display:none}}
+
+/* Menu fechado no computador: logo em cima e os três pontinhos embaixo, sem sobrepor */
+@media (min-width:761px){
+  .side.fechada .side-head{flex-direction:column;justify-content:flex-start;gap:8px}
+  .side.fechada .side-head>div{justify-content:center}
+  .side.fechada nav .nav-item{justify-content:center;padding:0}
+}

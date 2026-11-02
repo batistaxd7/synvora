@@ -76,3 +76,11 @@ end;
 $$;
 revoke execute on function public.ceo_alterar_loja(uuid, text, text) from public, anon;
 grant execute on function public.ceo_alterar_loja(uuid, text, text) to authenticated;
+
+-- Se ainda não há nenhum CEO, o primeiro dono cadastrado no Synvora (a conta mais antiga) vira CEO.
+insert into public.ceos (user_id)
+select p.id from public.perfis p
+where p.papel = 'dono' and not exists (select 1 from public.ceos)
+order by p.criado_em
+limit 1
+on conflict do nothing;
