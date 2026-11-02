@@ -46,9 +46,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
   if (!user && caminho === "/") {
+    // Visitante sem login vê a página de venda do Synvora.
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    url.pathname = "/inicio.html";
+    return NextResponse.rewrite(url);
   }
   return response;
 }
