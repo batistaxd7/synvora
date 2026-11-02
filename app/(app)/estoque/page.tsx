@@ -42,6 +42,11 @@ async function editarProduto(f: FormData) {
   const supabase = createClient();
   const { error } = await supabase.from("produtos").update({
     nome, sku, categoria: texto(f, "categoria"), preco: valor(f.get("preco")), saldo: inteiro(f.get("saldo")),
+    ...(f.has("ncm") ? {
+      ncm: (texto(f, "ncm") ?? "").replace(/\D/g, "") || null, cfop: (texto(f, "cfop") ?? "").replace(/\D/g, "") || null,
+      icms_situacao: (texto(f, "icms_situacao") ?? "").replace(/\D/g, "") || null, origem: (texto(f, "origem") ?? "").replace(/\D/g, "") || null,
+      unidade: (texto(f, "unidade") ?? "").toUpperCase() || null,
+    } : {}),
   }).eq("id", id);
   if (error) falha("/estoque", traduzir(error));
   revalidatePath("/caixa");
@@ -90,7 +95,7 @@ export default async function Estoque({ searchParams }: { searchParams: { q?: st
   const eu = await exigirDono();
   const q = (searchParams.q ?? "").trim().replace(/[%_,()]/g, "");
   const supabase = createClient();
-  let consulta = supabase.from("produtos").select("id, sku, nome, categoria, preco, saldo, foto_url").order("nome").limit(1000);
+  let consulta = supabase.from("produtos").select("*").order("nome").limit(1000);
   if (q) consulta = consulta.or(`nome.ilike.%${q}%,sku.ilike.%${q}%`);
   if (searchParams.cat) consulta = consulta.eq("categoria", searchParams.cat);
   if (searchParams.baixo) consulta = consulta.lte("saldo", 5);
@@ -171,6 +176,16 @@ export default async function Estoque({ searchParams }: { searchParams: { q?: st
                 <label className="field">Categoria<input className="input" name="categoria" defaultValue={p.categoria ?? ""} list="categorias" /></label>
                 <label className="field">Preço (R$)<input className="input" name="preco" inputMode="decimal" defaultValue={campoValor(Number(p.preco))} /></label>
                 <label className="field">Quantidade<input className="input" name="saldo" type="number" min="0" defaultValue={p.saldo} /></label>
+                <details style={{ gridColumn: "1 / -1" }}>
+                  <summary className="resumo-abrir">Dados fiscais (nota fiscal){(p as any).ncm ? "" : " · falta NCM"}</summary>
+                  <div className="form-grid" style={{ marginTop: 12 }}>
+                    <label className="field">NCM (8 números)<input className="input" name="ncm" inputMode="numeric" maxLength={10} defaultValue={(p as any).ncm ?? ""} /></label>
+                    <label className="field">CFOP<input className="input" name="cfop" inputMode="numeric" maxLength={4} defaultValue={(p as any).cfop ?? ""} placeholder="Padrão da loja" /></label>
+                    <label className="field">CSOSN / CST<input className="input" name="icms_situacao" inputMode="numeric" maxLength={3} defaultValue={(p as any).icms_situacao ?? ""} placeholder="Padrão da loja" /></label>
+                    <label className="field">Origem<input className="input" name="origem" inputMode="numeric" maxLength={1} defaultValue={(p as any).origem ?? ""} placeholder="Padrão da loja" /></label>
+                    <label className="field">Unidade<input className="input" name="unidade" maxLength={6} defaultValue={(p as any).unidade ?? ""} placeholder="UN" /></label>
+                  </div>
+                </details>
                 <button className="btn" type="submit">Salvar alterações</button>
               </form>
               <form action={excluirProduto}>

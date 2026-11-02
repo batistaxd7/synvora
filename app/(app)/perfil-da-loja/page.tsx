@@ -7,6 +7,7 @@ import { exigirDono, texto } from "@/lib/perfil";
 import { headers } from "next/headers";
 import EnviarFoto from "@/components/EnviarFoto";
 import Copiar from "@/components/Copiar";
+import { lerConfig, salvarConfigFiscal } from "@/lib/fiscal";
 
 const PAPEIS: Record<string, string> = { dono: "Dono", vendedor: "Vendedor / Afiliado", caixa: "Caixa" };
 
@@ -81,6 +82,23 @@ async function alterarMembro(f: FormData) {
   redirect("/perfil-da-loja?ok=membro");
 }
 
+async function salvarFiscal(f: FormData) {
+  "use server";
+  const eu = await exigirDono();
+  const so = (n: string) => (texto(f, n) ?? "").replace(/\D/g, "") || null;
+  const amb = f.get("ambiente") === "producao" ? "producao" : "homologacao";
+  const token = texto(f, "token");
+  const r = await salvarConfigFiscal(eu.loja_id, {
+    ambiente: amb, cnpj: so("cnpj"), uf: (texto(f, "uf") ?? "").toUpperCase().slice(0, 2) || null,
+    ncm_padrao: so("ncm_padrao"), cfop_padrao: so("cfop_padrao") ?? "5102", icms_padrao: so("icms_padrao") ?? "102",
+    origem_padrao: so("origem_padrao") ?? "0", pis_cofins_padrao: so("pis_cofins_padrao") ?? "49",
+    ...(token ? { token } : {}),
+  });
+  if (r.erro) redirect(`/perfil-da-loja?erro=${encodeURIComponent(r.erro)}#fiscal`);
+  revalidatePath("/perfil-da-loja");
+  redirect("/perfil-da-loja?ok=fiscal#fiscal");
+}
+
 async function novoLinkCatalogo() {
   "use server";
   await exigirDono();
@@ -91,7 +109,7 @@ async function novoLinkCatalogo() {
   redirect("/perfil-da-loja?ok=catalogo");
 }
 
-const OK: Record<string, string> = { catalogo: "Link novo do catálogo criado. Troque também no Gerenciador de Comércio.", loja: "Dados da loja salvos.", login: "Seu login foi atualizado.", membro: "Acesso atualizado." };
+const OK: Record<string, string> = { fiscal: "Configuração da nota fiscal salva.", catalogo: "Link novo do catálogo criado. Troque também no Gerenciador de Comércio.", loja: "Dados da loja salvos.", login: "Seu login foi atualizado.", membro: "Acesso atualizado." };
 
 export default async function PerfilDaLoja({ searchParams }: { searchParams: { erro?: string; ok?: string } }) {
   const eu = await exigirDono();
@@ -101,6 +119,7 @@ export default async function PerfilDaLoja({ searchParams }: { searchParams: { e
     supabase.from("perfis").select("id, nome, usuario, papel").order("criado_em"),
   ]);
   const { data: prods } = await supabase.from("produtos").select("id, foto_url, preco");
+  const { cfg: fiscal, erro: erroFiscal } = await lerConfig(eu.loja_id);
   const totalProd = (prods ?? []).length;
   const noCatalogo = (prods ?? []).filter((p) => p.foto_url && Number(p.preco) > 0).length;
   const h = headers();
@@ -129,6 +148,37 @@ export default async function PerfilDaLoja({ searchParams }: { searchParams: { e
         <label className="field">Instagram<input className="input" name="instagram" defaultValue={l.instagram ?? ""} placeholder="@sualoja" /></label>
         <label className="field">Endereço<input className="input" name="endereco" defaultValue={l.endereco ?? ""} /></label>
         <button className="btn" type="submit">Salvar dados da loja</button>
+      </form>
+
+      <h2 id="fiscal" style={{ margin: "8px 0 0", fontSize: 18 }}>Nota fiscal (NFC-e e NF-e)</h2>
+      <form action={salvarFiscal} className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <p className="muted" style={{ margin: 0 }}>O Synvora emite as notas pela <a href="https://focusnfe.com.br" target="_blank" rel="noopener" style={{ color: "var(--accent-ink)", fontWeight: 700 }}>Focus NFe</a>. Crie a conta lá, cadastre sua empresa com o certificado digital A1 e o CSC da NFC-e, e cole aqui o token da empresa.</p>
+        {erroFiscal && <div className="erro">{erroFiscal}</div>}
+        <div className="form-grid">
+          <label className="field">Ambiente
+            <select className="input" name="ambiente" defaultValue={fiscal?.ambiente ?? "homologacao"}>
+              <option value="homologacao">Teste (homologação, sem valor fiscal)</option>
+              <option value="producao">Produção (notas valendo)</option>
+            </select>
+          </label>
+          <label className="field">Token da empresa na Focus NFe
+            <input className="input" name="token" type="password" autoComplete="off" placeholder={fiscal?.token ? "Token salvo ✓ (deixe vazio para manter)" : "Cole o token aqui"} />
+          </label>
+          <label className="field">CNPJ da loja<input className="input" name="cnpj" inputMode="numeric" defaultValue={fiscal?.cnpj ?? (l.documento ?? "")} required /></label>
+          <label className="field">UF da loja<input className="input" name="uf" maxLength={2} defaultValue={fiscal?.uf ?? ""} placeholder="RS" required style={{ textTransform: "uppercase" }} /></label>
+        </div>
+        <details>
+          <summary className="resumo-abrir">Impostos padrão (peça ao seu contador)</summary>
+          <div className="form-grid" style={{ marginTop: 12 }}>
+            <label className="field">NCM padrão<input className="input" name="ncm_padrao" inputMode="numeric" maxLength={8} defaultValue={fiscal?.ncm_padrao ?? ""} placeholder="Usado em produto sem NCM" /></label>
+            <label className="field">CFOP padrão<input className="input" name="cfop_padrao" inputMode="numeric" maxLength={4} defaultValue={fiscal?.cfop_padrao ?? "5102"} /></label>
+            <label className="field">CSOSN / CST do ICMS<input className="input" name="icms_padrao" inputMode="numeric" maxLength={3} defaultValue={fiscal?.icms_padrao ?? "102"} /></label>
+            <label className="field">Origem da mercadoria<input className="input" name="origem_padrao" inputMode="numeric" maxLength={1} defaultValue={fiscal?.origem_padrao ?? "0"} /></label>
+            <label className="field">CST do PIS e COFINS<input className="input" name="pis_cofins_padrao" inputMode="numeric" maxLength={2} defaultValue={fiscal?.pis_cofins_padrao ?? "49"} /></label>
+          </div>
+          <p className="muted" style={{ fontSize: 12, margin: "10px 0 0", lineHeight: 1.6 }}>Os valores iniciais (CFOP 5102, CSOSN 102, origem 0, PIS/COFINS 49) são comuns para revenda no Simples Nacional, mas cada loja tem suas regras. Confirme com o contador. Cada produto pode ter os seus no Estoque.</p>
+        </details>
+        <button className="btn" type="submit" style={{ alignSelf: "flex-start" }}>Salvar configuração da nota</button>
       </form>
 
       <h2 style={{ margin: "8px 0 0", fontSize: 18 }}>Catálogo no Facebook e Instagram</h2>

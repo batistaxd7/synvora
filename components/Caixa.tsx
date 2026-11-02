@@ -103,6 +103,7 @@ export default function Caixa({ produtos, clientes = [] }: { produtos: Produto[]
         )}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <a className="btn" href={`/recibo/${feito.id}`} target="_blank" rel="noopener">Imprimir recibo</a>
+          <a className="btn btn-ghost" href={`/pedidos/${feito.id}#nota`}>Emitir nota fiscal</a>
           <button className="btn btn-ghost" type="button" onClick={novaVenda}>Nova venda</button>
           <Link className="btn btn-ghost" href={`/pedidos/${feito.id}`}>Ver pedido</Link>
         </div>
