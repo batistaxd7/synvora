@@ -182,3 +182,58 @@ html[data-theme="dark"]{--info-bg:#1C2846;--info-ink:#9DB8F2;--danger-bg:#3A1A1C
   .stat{padding:14px}.stat b{font-size:24px}
   .chat-envio{flex-direction:column;align-items:stretch}
 }
+
+/* ===== Visual da página de venda levado ao sistema ===== */
+html[data-theme="dark"]{--bg:#0F0B1F;--surface:#18132E;--line:rgba(201,190,245,.14);--line-soft:rgba(201,190,245,.08);--line-strong:rgba(201,190,245,.24);--chip:#221B40;--ink:#EEEAF8;--ink2:#C7C0E2;--muted:#A9A3C4;--accent:#6A55B5;--accent-soft:rgba(106,85,181,.24);--accent-ink:#D8D0F5;--accent-bar:#8470CB;background-image:none}
+body{font-family:"DM Sans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3,.titulo-card,.stat b,.total-box,.side-head b{font-family:Sora,"DM Sans",sans-serif}
+h1{font-weight:800;letter-spacing:-.03em}
+
+/* Fumaça roxa se mexendo no fundo */
+@keyframes sv-fumaca1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(9vw,6vh) scale(1.2)}}
+@keyframes sv-fumaca2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-10vw,8vh) scale(.85)}}
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(80px);pointer-events:none}
+body::before{width:560px;height:560px;left:-180px;top:-200px;background:#6A55B5;opacity:.16;animation:sv-fumaca1 22s ease-in-out infinite}
+body::after{width:520px;height:520px;right:-160px;top:30vh;background:#8470CB;opacity:.12;animation:sv-fumaca2 28s ease-in-out infinite}
+html[data-theme="dark"] body::before{opacity:.42}
+html[data-theme="dark"] body::after{background:#4A3C86;opacity:.4}
+
+/* Cartões com vidro e brilho ao passar */
+html[data-theme="dark"] .card,html[data-theme="dark"] .stat,html[data-theme="dark"] .side,html[data-theme="dark"] .popover,html[data-theme="dark"] .dialogo{background:rgba(24,19,46,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.card,.stat,.side{border-radius:20px}
+.card:hover{border-color:rgba(132,112,203,.45)}
+.stat{position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(201,190,245,.14) 50%,transparent 70%);background-size:250% 100%;background-position:120% 0;pointer-events:none;transition:background-position .8s ease}
+.stat:hover::after{background-position:-20% 0}
+.stat:hover{transform:translateY(-6px);border-color:rgba(132,112,203,.5)}
+.stat b{background:linear-gradient(90deg,var(--ink) 0%,var(--ink) 40%,#C9BEF5 50%,var(--ink) 60%,var(--ink) 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sv-brilho 6s linear infinite}
+
+/* Entrada das páginas com leve desfoque, igual à página de venda */
+@keyframes sv-sobe{from{opacity:.001;transform:translateY(16px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.page-enter>*{animation:sv-sobe .45s cubic-bezier(.2,.7,.2,1) both}
+.page-enter .stat{animation:sv-sobe .6s cubic-bezier(.2,.7,.2,1) both}
+
+/* Menu */
+.nav-item.ativo{background:var(--accent);color:#fff;box-shadow:0 8px 20px rgba(106,85,181,.35)}
+.nav-item:hover{transform:translateX(4px)}
+.side-head .icon-btn svg{animation:sv-gira 4s linear infinite}
+.side-head .icon-btn:hover svg{animation-duration:.9s}
+
+/* Botões que sobem e brilham */
+.btn{border-radius:14px;font-weight:700}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(106,85,181,.42);filter:brightness(1.06)}
+.btn:active{transform:scale(.97)}
+.btn-ghost:hover{box-shadow:0 10px 22px rgba(0,0,0,.18)}
+.chip.ativo,.bolha.minha{box-shadow:0 6px 16px rgba(106,85,181,.35)}
+.etapas li.atual .ponto{animation:sv-pulso 2.2s ease-in-out infinite}
+@keyframes sv-pulso{0%,100%{box-shadow:0 0 0 3px var(--accent),0 0 0 3px rgba(168,152,232,.5)}50%{box-shadow:0 0 0 3px var(--accent),0 0 0 11px rgba(168,152,232,0)}}
+.plano.recomendado{border-color:#8470CB}
+.prod-tile:hover{transform:translateY(-3px)}
+.row{transition:background-color .18s,transform .18s}
+.row:hover{transform:translateX(3px)}
+
+/* Tela de login e cadastro */
+.auth .card{border-radius:24px;box-shadow:0 40px 100px rgba(0,0,0,.35)}
+
+@media (prefers-reduced-motion:reduce){body::before,body::after,.stat b,.side-head .icon-btn svg{animation:none!important}}
+@media print{body::before,body::after{display:none}}
