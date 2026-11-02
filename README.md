@@ -23,7 +23,8 @@ No Supabase, *SQL Editor > New query*, cole e clique em *Run*:
 3. `supabase/equipe.sql`
 4. `supabase/seguranca.sql`
 5. `supabase/vendas.sql` (caixa, pedidos e recibo)
-6. `supabase/modulos.sql` (clientes, gastos, fornecedores, tarefas, avisos, suporte, perfil e logo)
+6. `supabase/modulos.sql` (clientes, gastos, fornecedores, tarefas, avisos, suporte, perfil)
+7. `supabase/fotos.sql` (foto da loja e fotos dos produtos)
 
 ### Virar atendente do suporte
 

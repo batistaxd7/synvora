@@ -147,3 +147,12 @@ html[data-theme="dark"]{--info-bg:#1C2846;--info-ink:#9DB8F2;--danger-bg:#3A1A1C
 .carregando{display:flex;flex-direction:column;gap:16px;animation:sv-in .15s ease both}
 .esq{border-radius:14px;background:linear-gradient(90deg,var(--line-soft) 0%,var(--chip) 50%,var(--line-soft) 100%);background-size:200% 100%;animation:sv-brilho 1.1s linear infinite}
 @keyframes sv-brilho{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* Fotos */
+.foto-alvo{position:relative;flex:none;border-radius:14px;border:1px dashed var(--line-strong);background:var(--accent-soft);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;padding:0;transition:transform .15s,border-color .18s}
+.foto-alvo:hover{border-color:var(--accent)}.foto-alvo:active{transform:scale(.95)}
+.foto-alvo img{width:100%;height:100%;object-fit:cover}
+.foto-carregando{position:absolute;inset:0;background:rgba(20,14,40,.45);display:flex}
+.foto-carregando::after{content:"";margin:auto;width:20px;height:20px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:sv-gira .8s linear infinite}
+@keyframes sv-gira{to{transform:rotate(360deg)}}
+.prod-foto{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;margin-bottom:4px;background:var(--surface)}

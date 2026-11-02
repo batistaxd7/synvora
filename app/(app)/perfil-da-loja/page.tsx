@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createAdmin } from "@/lib/supabase/admin";
 import { exigirDono, texto } from "@/lib/perfil";
+import EnviarFoto from "@/components/EnviarFoto";
 
 const PAPEIS: Record<string, string> = { dono: "Dono", vendedor: "Vendedor / Afiliado", caixa: "Caixa" };
 
@@ -18,21 +19,22 @@ async function salvarLoja(f: FormData) {
     endereco: texto(f, "endereco"), documento: texto(f, "documento"), instagram: texto(f, "instagram"),
   };
 
-  const logo = f.get("logo");
-  if (logo instanceof File && logo.size > 0) {
-    if (!logo.type.startsWith("image/")) redirect("/perfil-da-loja?erro=A logo precisa ser uma imagem (PNG, JPG ou WEBP).");
-    if (logo.size > 2 * 1024 * 1024) redirect("/perfil-da-loja?erro=A logo pode ter no máximo 2 MB.");
-    const ext = (logo.name.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
-    const caminho = `${eu.loja_id}/logo-${Date.now()}.${ext}`;
-    const { error: erroUp } = await supabase.storage.from("logos").upload(caminho, logo, { contentType: logo.type, upsert: true });
-    if (erroUp) redirect(`/perfil-da-loja?erro=${encodeURIComponent("Não foi possível enviar a logo: " + erroUp.message)}`);
-    dados.logo_url = supabase.storage.from("logos").getPublicUrl(caminho).data.publicUrl;
-  }
 
   const { error } = await supabase.from("lojas").update(dados).eq("id", eu.loja_id);
   if (error) redirect(`/perfil-da-loja?erro=${encodeURIComponent(error.message.slice(0, 160))}`);
   revalidatePath("/", "layout");
   redirect("/perfil-da-loja?ok=loja");
+}
+
+async function salvarLogo(url: string) {
+  "use server";
+  const eu = await exigirDono();
+  const origem = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin;
+  if (!url.startsWith(`${origem}/storage/v1/object/public/logos/${eu.loja_id}/`)) return { erro: "Endereço da foto inválido." };
+  const supabase = createClient();
+  const { error } = await supabase.from("lojas").update({ logo_url: url }).eq("id", eu.loja_id);
+  if (error) return { erro: /logo_url/.test(error.message) ? "Rode o arquivo supabase/modulos.sql no Supabase." : error.message };
+  revalidatePath("/", "layout");
 }
 
 async function salvarMeuLogin(f: FormData) {
@@ -97,13 +99,10 @@ export default async function PerfilDaLoja({ searchParams }: { searchParams: { e
       {searchParams.ok && <div className="erro aviso-ok">{OK[searchParams.ok] ?? "Salvo."}</div>}
 
       <form action={salvarLoja} className="card form-grid">
-        <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 16 }}>
-          <div className="logo-loja">
-            {l.logo_url ? <img src={l.logo_url} alt={`Logo de ${l.nome}`} /> : <span>{(l.nome ?? "L").slice(0, 1).toUpperCase()}</span>}
-          </div>
-          <label className="field" style={{ flex: 1 }}>Foto ou logo da loja (até 2 MB)
-            <input className="input" name="logo" type="file" accept="image/png,image/jpeg,image/webp" style={{ paddingTop: 12 }} />
-          </label>
+        <div className="field" style={{ gridColumn: "1 / -1" }}>Foto ou logo da loja
+          <EnviarFoto bucket="logos" pasta={eu.loja_id} nome="logo" atual={l.logo_url ?? null} salvar={salvarLogo}
+            rotulo={l.logo_url ? "Trocar foto" : "Escolher foto"} lado={600} />
+          <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>Pode usar foto do celular de qualquer tamanho: ela é ajustada sozinha e salva na hora.</span>
         </div>
         <label className="field">Nome da loja<input className="input" name="nome" defaultValue={l.nome ?? ""} required /></label>
         <label className="field">Telefone / WhatsApp<input className="input" name="telefone" defaultValue={l.telefone ?? ""} /></label>

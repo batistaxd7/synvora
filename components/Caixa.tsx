@@ -120,6 +120,7 @@ export default function Caixa({ produtos, clientes = [] }: { produtos: Produto[]
         <div className="prod-grid">
           {encontrados.map((p) => (
             <button key={p.id} type="button" className="prod-tile" onClick={() => adicionar(p)} disabled={p.saldo <= 0}>
+              {p.foto_url && <img src={p.foto_url} alt="" className="prod-foto" loading="lazy" />}
               <span style={{ fontWeight: 600, fontSize: 14 }}>{p.nome}</span>
               <span className="muted" style={{ fontSize: 12 }}>{p.sku}</span>
               <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
