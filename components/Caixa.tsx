@@ -3,19 +3,15 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { finalizarVenda } from "@/app/(app)/caixa/actions";
 import { FORMAS, reais } from "@/lib/pedidos";
+import { campoValor, lerValor } from "@/lib/dinheiro";
+import { useRouter } from "next/navigation";
 
 type Produto = { id: string; sku: string; nome: string; categoria: string | null; preco: number; saldo: number; foto_url: string | null };
 type ItemCarrinho = { produto: Produto; quantidade: number };
 type Pagamento = { forma: string; valor: string };
 
-function numero(txt: string) {
-  const limpo = txt.replace(/\s|R\$/g, "");
-  const v = limpo.includes(",") ? parseFloat(limpo.replace(/\./g, "").replace(",", ".")) : parseFloat(limpo);
-  return isFinite(v) ? Math.round(v * 100) / 100 : 0;
-}
-function campo(v: number) {
-  return v.toFixed(2).replace(".", ",");
-}
+const numero = lerValor;
+const campo = campoValor;
 
 const CANAIS = ["Loja física", "WhatsApp", "Instagram", "Site", "Shopee", "Mercado Livre"];
 
@@ -29,6 +25,7 @@ export default function Caixa({ produtos, clientes = [] }: { produtos: Produto[]
   const [erro, setErro] = useState<string | null>(null);
   const [feito, setFeito] = useState<{ id: string; numero: number; total: number; troco: number } | null>(null);
   const [enviando, iniciar] = useTransition();
+  const router = useRouter();
 
   const encontrados = useMemo(() => {
     const t = busca.trim().toLowerCase();
@@ -86,6 +83,7 @@ export default function Caixa({ produtos, clientes = [] }: { produtos: Produto[]
       });
       if (!r.ok) return setErro(r.erro);
       setFeito(r);
+      router.refresh(); // estoque atualizado para a próxima venda
     });
   }
 

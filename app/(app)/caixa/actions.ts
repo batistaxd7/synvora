@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { traduzir } from "@/lib/acoes";
 
 export type ResultadoVenda =
   | { ok: true; id: string; numero: number; total: number; troco: number }
@@ -21,10 +22,7 @@ export async function finalizarVenda(dados: {
     canal_venda: dados.canal || "Loja física",
     desconto_venda: dados.desconto || 0,
   });
-  if (error) {
-    const falta = /registrar_venda|function/i.test(error.message) && /not find|does not exist|schema cache/i.test(error.message);
-    return { ok: false, erro: falta ? "O banco ainda não tem a parte de vendas. Rode o arquivo supabase/vendas.sql no Supabase (veja o README)." : error.message };
-  }
+  if (error) return { ok: false, erro: traduzir(error) };
   revalidatePath("/estoque");
   revalidatePath("/pedidos");
   revalidatePath("/painel");

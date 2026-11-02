@@ -3,6 +3,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { meuPerfil, texto } from "@/lib/perfil";
 import ConcluirTarefa from "@/components/ConcluirTarefa";
+import { falha, sucesso, traduzir } from "@/lib/acoes";
+import Mensagens from "@/components/Mensagens";
+import BotaoConfirmar from "@/components/BotaoConfirmar";
 
 function hojeSP() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
@@ -16,7 +19,7 @@ async function criarTarefa(f: FormData) {
   const eu = await meuPerfil();
   if (eu.papel !== "dono") return;
   const titulo = texto(f, "titulo");
-  if (!titulo) return;
+  if (!titulo) falha("/tarefas", "Escreva a tarefa.");
   const supabase = createClient();
   const responsavel = texto(f, "responsavel_id");
   const { data: pessoa } = responsavel
@@ -27,17 +30,16 @@ async function criarTarefa(f: FormData) {
     responsavel_id: pessoa?.id ?? null, responsavel_nome: pessoa?.nome ?? null,
     prazo: texto(f, "prazo"), prioridade: f.get("prioridade") === "urgente" ? "urgente" : "normal",
   });
-  if (error) redirect(`/tarefas?erro=${encodeURIComponent(error.message.slice(0, 160))}`);
-  revalidatePath("/tarefas");
+  if (error) falha("/tarefas", traduzir(error));
+  sucesso("/tarefas", pessoa ? `Tarefa criada para ${pessoa.nome}.` : "Tarefa criada.");
 }
 
 async function concluir(f: FormData) {
   "use server";
   const supabase = createClient();
   const { error } = await supabase.rpc("concluir_tarefa", { tarefa: String(f.get("id")) });
-  if (error) redirect(`/tarefas?erro=${encodeURIComponent(error.message.slice(0, 160))}`);
+  if (error) falha("/tarefas", traduzir(error));
   revalidatePath("/tarefas");
-  revalidatePath("/painel");
 }
 
 async function excluir(f: FormData) {
@@ -45,11 +47,12 @@ async function excluir(f: FormData) {
   const eu = await meuPerfil();
   if (eu.papel !== "dono") return;
   const supabase = createClient();
-  await supabase.from("tarefas").delete().eq("id", String(f.get("id")));
+  const { error } = await supabase.from("tarefas").delete().eq("id", String(f.get("id")));
+  if (error) falha("/tarefas", traduzir(error));
   revalidatePath("/tarefas");
 }
 
-export default async function Tarefas({ searchParams }: { searchParams: { erro?: string } }) {
+export default async function Tarefas({ searchParams }: { searchParams: { erro?: string; ok?: string } }) {
   const eu = await meuPerfil();
   const dono = eu.papel === "dono";
   const supabase = createClient();
@@ -69,7 +72,7 @@ export default async function Tarefas({ searchParams }: { searchParams: { erro?:
         <p className="muted">{dono ? "Crie tarefas para a equipe, escolha quem faz e o prazo. Você recebe um aviso quando concluírem." : "Suas tarefas. Toque em concluir quando terminar."}</p>
       </div>
 
-      {(searchParams.erro || error) && <div className="erro">{searchParams.erro ?? `Rode o arquivo supabase/modulos.sql no Supabase para liberar esta tela. (${error?.message})`}</div>}
+      <Mensagens erro={searchParams.erro ?? (error ? traduzir(error) : undefined)} ok={searchParams.ok} />
 
       {dono && (
         <form action={criarTarefa} className="card form-grid">
@@ -106,7 +109,7 @@ export default async function Tarefas({ searchParams }: { searchParams: { erro?:
               {atrasada && <span className="badge badge-warn">Atrasada</span>}
               <ConcluirTarefa id={t.id} acao={concluir} />
               {dono && (
-                <form action={excluir}><input type="hidden" name="id" value={t.id} /><button className="btn btn-ghost btn-sm" type="submit">Excluir</button></form>
+                <form action={excluir}><input type="hidden" name="id" value={t.id} /><BotaoConfirmar pergunta={`Excluir a tarefa "${t.titulo}"?`}>Excluir</BotaoConfirmar></form>
               )}
             </div>
           );

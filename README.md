@@ -14,17 +14,13 @@ Stack: Next.js 14 (App Router) + Supabase (banco e login) + Vercel (hospedagem).
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 5. Clique em *Deploy*.
 
-## Atualizações do banco (rode na ordem, uma vez cada)
+## Banco de dados (um arquivo só)
 
-No Supabase, *SQL Editor > New query*, cole e clique em *Run*:
+No Supabase, *SQL Editor > New query*, cole **todo** o conteúdo de `supabase/tudo.sql` e clique em *Run*.
+Pode rodar quantas vezes quiser: ele só cria ou atualiza o que falta, sem apagar dados.
+Quando o banco estiver desatualizado, o próprio Synvora mostra um aviso no topo para o dono.
 
-1. `supabase/schema.sql`
-2. `supabase/permissoes.sql`
-3. `supabase/equipe.sql`
-4. `supabase/seguranca.sql`
-5. `supabase/vendas.sql` (caixa, pedidos e recibo)
-6. `supabase/modulos.sql` (clientes, gastos, fornecedores, tarefas, avisos, suporte, perfil)
-7. `supabase/fotos.sql` (foto da loja e fotos dos produtos)
+(Os arquivos separados continuam na pasta `supabase/`; o `tudo.sql` é gerado juntando todos com `supabase/gerar-tudo.sh`.)
 
 ### Virar atendente do suporte
 

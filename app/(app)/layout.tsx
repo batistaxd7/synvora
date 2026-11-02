@@ -6,6 +6,9 @@ import Sidebar from "@/components/Sidebar";
 import ThemeToggle from "@/components/ThemeToggle";
 import Avisos from "@/components/Avisos";
 
+// Suba este número junto com supabase/versao.sql quando o banco mudar
+const VERSAO_BANCO = 5;
+
 async function sair() {
   "use server";
   const supabase = createClient();
@@ -28,13 +31,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = createClient();
 
   // Tudo de uma vez, em paralelo (antes era uma consulta depois da outra)
-  const [perfil, avisos, atendente, baixos, lojaRes] = await Promise.all([
+  const [perfil, avisos, atendente, baixos, lojaRes, versao] = await Promise.all([
     perfilAtual(),
     supabase.from("avisos").select("id, texto, link, lido, criado_em").eq("para_id", user.id).order("criado_em", { ascending: false }).limit(15),
     supabase.rpc("sou_atendente"),
     supabase.from("produtos").select("id", { count: "exact", head: true }).lte("saldo", 5),
     supabase.from("lojas").select("*").limit(1).maybeSingle(),
+    supabase.rpc("versao_banco"),
   ]);
+  const bancoDesatualizado = typeof versao.data !== "number" || versao.data < VERSAO_BANCO;
   const dono = perfil?.papel === "dono";
   const loja = (lojaRes.data as { nome: string; logo_url?: string | null } | null) ?? null;
 
@@ -49,7 +54,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <button className="btn btn-ghost" style={{ minHeight: 44 }} type="submit">Sair</button>
           </form>
         </div>
-        {!perfil && <div className="erro">Não foi possível carregar o perfil. Saia e entre de novo.</div>}
+        {!perfil && <div className="erro" style={{ margin: "0 16px" }}>Não foi possível carregar o perfil. Saia e entre de novo.</div>}
+        {dono && bancoDesatualizado && (
+          <div className="erro" role="alert" style={{ margin: "0 16px", lineHeight: 1.6 }}>
+            <b>Falta atualizar o banco de dados.</b> Algumas telas não vão funcionar até isso ser feito (leva 1 minuto):<br />
+            1. Abra o arquivo <a href="https://github.com/batistaxd7/synvora/blob/main/supabase/tudo.sql" target="_blank" rel="noopener" style={{ textDecoration: "underline", fontWeight: 600 }}>supabase/tudo.sql</a> e copie todo o conteúdo (botão “Copy raw file”).<br />
+            2. No Supabase, vá em <b>SQL Editor &gt; New query</b>, cole e clique em <b>Run</b>.<br />
+            3. Volte aqui e atualize a página. Este aviso some sozinho.
+          </div>
+        )}
         <main className="main">{children}</main>
       </div>
     </div>

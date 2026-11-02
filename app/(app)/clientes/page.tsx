@@ -2,34 +2,40 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { meuPerfil, texto } from "@/lib/perfil";
 import { reais } from "@/lib/pedidos";
+import { falha, sucesso, traduzir } from "@/lib/acoes";
+import Mensagens from "@/components/Mensagens";
+import BotaoConfirmar from "@/components/BotaoConfirmar";
 
 async function salvarCliente(f: FormData) {
   "use server";
   const eu = await meuPerfil();
   const nome = texto(f, "nome");
-  if (!nome) return;
+  if (!nome) falha("/clientes", "Informe o nome do cliente.");
   const supabase = createClient();
-  await supabase.from("clientes").insert({
+  const { error } = await supabase.from("clientes").insert({
     loja_id: eu.loja_id, nome,
     telefone: texto(f, "telefone"), email: texto(f, "email"), documento: texto(f, "documento"),
     endereco: texto(f, "endereco"), aniversario: texto(f, "aniversario"), observacao: texto(f, "observacao"),
   });
-  revalidatePath("/clientes");
+  if (error) falha("/clientes", traduzir(error));
+  revalidatePath("/caixa");
+  sucesso("/clientes", `Cliente "${nome}" cadastrado.`);
 }
 
 async function removerCliente(f: FormData) {
   "use server";
   const supabase = createClient();
-  await supabase.from("clientes").delete().eq("id", String(f.get("id")));
+  const { error } = await supabase.from("clientes").delete().eq("id", String(f.get("id")));
+  if (error) falha("/clientes", traduzir(error));
   revalidatePath("/clientes");
 }
 
-export default async function Clientes({ searchParams }: { searchParams: { q?: string } }) {
+export default async function Clientes({ searchParams }: { searchParams: { q?: string; erro?: string; ok?: string } }) {
   const q = (searchParams.q ?? "").trim().replace(/[%_,()]/g, "");
   const supabase = createClient();
   let consulta = supabase.from("clientes").select("id, nome, telefone, email, documento, aniversario, observacao").order("nome").limit(300);
   if (q) consulta = consulta.or(`nome.ilike.%${q}%,telefone.ilike.%${q}%,documento.ilike.%${q}%`);
-  const [{ data: clientes }, { data: vendas }] = await Promise.all([
+  const [{ data: clientes, error }, { data: vendas }] = await Promise.all([
     consulta,
     supabase.from("pedidos").select("cliente_nome, total").eq("cancelado", false).not("cliente_nome", "is", null).limit(5000),
   ]);
@@ -46,6 +52,7 @@ export default async function Clientes({ searchParams }: { searchParams: { q?: s
         <h1>Clientes</h1>
         <p className="muted">Cadastro dos seus clientes. As compras feitas no caixa com o mesmo nome aparecem aqui.</p>
       </div>
+      <Mensagens erro={searchParams.erro ?? (error ? traduzir(error) : undefined)} ok={searchParams.ok} />
 
       <form action={salvarCliente} className="card form-grid">
         <label className="field">Nome<input className="input" name="nome" required /></label>
@@ -79,7 +86,7 @@ export default async function Clientes({ searchParams }: { searchParams: { q?: s
               <span style={{ flex: 1, minWidth: 120 }}>{h ? `${h.n} compra(s) · ${reais(h.total)}` : <span className="muted">Sem compras</span>}</span>
               <form action={removerCliente}>
                 <input type="hidden" name="id" value={c.id} />
-                <button className="btn btn-ghost btn-sm" type="submit">Remover</button>
+                <BotaoConfirmar pergunta={`Remover o cliente "${c.nome}"? As compras dele continuam no histórico.`}>Remover</BotaoConfirmar>
               </form>
             </div>
           );

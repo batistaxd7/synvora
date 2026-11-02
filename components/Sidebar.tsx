@@ -27,25 +27,38 @@ export default function Sidebar({ loja, logo, papel, nome, atendente }: { loja: 
   const caminho = usePathname();
   const [aberta, setAberta] = useState(true);
   const [giro, setGiro] = useState(0);
+  const [celular, setCelular] = useState(false);
 
   useEffect(() => {
-    try {
-      const n = window.localStorage.getItem("synvora-nav");
-      if (n === "open" || n === "closed") setAberta(n === "open");
-    } catch {}
+    const mq = window.matchMedia("(max-width: 760px)");
+    const aplicar = () => {
+      setCelular(mq.matches);
+      if (mq.matches) { setAberta(false); return; } // no celular o menu começa fechado
+      try {
+        const n = window.localStorage.getItem("synvora-nav");
+        if (n === "open" || n === "closed") setAberta(n === "open");
+      } catch {}
+    };
+    aplicar();
+    mq.addEventListener("change", aplicar);
+    return () => mq.removeEventListener("change", aplicar);
   }, []);
+
+  // No celular, fecha o menu quando você escolhe uma tela
+  useEffect(() => { if (celular) setAberta(false); }, [caminho, celular]);
 
   function alternar() {
     const nova = !aberta;
     setAberta(nova);
     setGiro((g) => g + 180);
-    try { window.localStorage.setItem("synvora-nav", nova ? "open" : "closed"); } catch {}
+    if (!celular) { try { window.localStorage.setItem("synvora-nav", nova ? "open" : "closed"); } catch {} }
   }
+  const rotulos = aberta || celular;
 
   const itens = ITENS.filter((i) => (!i.donoSo || papel === "dono") && (!i.atendenteSo || atendente));
 
   return (
-    <aside className="side" style={{ width: aberta ? 232 : 76 }}>
+    <aside className={`side${aberta ? "" : " fechada"}`} style={{ width: aberta ? 232 : 76 }}>
       <div className="side-head">
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <svg width="34" height="34" viewBox="0 0 34 34" role="img" aria-label="Synvora" style={{ flex: "none" }}>
@@ -53,7 +66,7 @@ export default function Sidebar({ loja, logo, papel, nome, atendente }: { loja: 
             <path d="M21.5 11c-1.1-1.5-2.8-2.3-4.8-2.3-3 0-5.2 1.6-5.2 3.9 0 4.8 11.5 2.2 11.5 8 0 2.5-2.3 4.4-5.5 4.4-2.4 0-4.4-1-5.6-2.8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
             <circle cx="25.5" cy="9" r="2.4" fill="#D9CFF0" />
           </svg>
-          {aberta && <span style={{ fontWeight: 700, fontSize: 19, letterSpacing: "-0.03em" }}>Synvora</span>}
+          {rotulos && <span style={{ fontWeight: 700, fontSize: 19, letterSpacing: "-0.03em" }}>Synvora</span>}
         </div>
         <button type="button" className="icon-btn" onClick={alternar} aria-label={aberta ? "Recolher menu" : "Abrir menu"} aria-expanded={aberta}>
           <span style={{ display: "inline-flex", transition: "transform .45s cubic-bezier(.2,.7,.2,1)", transform: `rotate(${giro}deg)` }}>
@@ -69,7 +82,7 @@ export default function Sidebar({ loja, logo, papel, nome, atendente }: { loja: 
             <Link key={i.href} href={i.href} title={i.label} aria-label={i.label} aria-current={ativo ? "page" : undefined}
               className={`nav-item${ativo ? " ativo" : ""}`} style={{ animationDelay: `${idx * 28}ms` }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: "none" }}><path d={i.icon} /></svg>
-              {aberta && <span style={{ flex: 1 }}>{i.label}</span>}
+              {rotulos && <span style={{ flex: 1 }}>{i.label}</span>}
             </Link>
           );
         })}

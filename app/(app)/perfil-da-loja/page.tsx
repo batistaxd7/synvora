@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createAdmin } from "@/lib/supabase/admin";
+import { createAdmin, SEM_CHAVE_ADMIN } from "@/lib/supabase/admin";
 import { exigirDono, texto } from "@/lib/perfil";
 import EnviarFoto from "@/components/EnviarFoto";
 
@@ -65,6 +65,7 @@ async function alterarMembro(f: FormData) {
   if (!alvo || alvo.papel === "dono" || alvo.loja_id !== eu.loja_id) return;
 
   const admin = createAdmin();
+  if (!admin) redirect(`/perfil-da-loja?erro=${encodeURIComponent(SEM_CHAVE_ADMIN)}`);
   if (papel === "vendedor" || papel === "caixa") {
     await admin.auth.admin.updateUserById(id, { app_metadata: { loja_id: eu.loja_id, papel } });
     await admin.from("perfis").update({ papel }).eq("id", id);

@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdmin } from "@/lib/supabase/admin";
+import { createAdmin, SEM_CHAVE_ADMIN } from "@/lib/supabase/admin";
 import { perfilAtual } from "@/lib/sessao";
 import { emailInterno, usuarioValido } from "@/lib/usuario";
+import BotaoConfirmar from "@/components/BotaoConfirmar";
 
 const PAPEIS: Record<string, string> = { dono: "Dono", vendedor: "Vendedor / Afiliado", caixa: "Caixa" };
 
@@ -27,6 +28,7 @@ async function criarMembro(formData: FormData) {
   if (papel !== "vendedor" && papel !== "caixa") redirect("/equipe?erro=dados");
 
   const admin = createAdmin();
+  if (!admin) redirect(`/equipe?erro=geral&detalhe=${encodeURIComponent(SEM_CHAVE_ADMIN)}`);
   const { error } = await admin.auth.admin.createUser({
     email: emailInterno(usuario),
     password: senha,
@@ -51,7 +53,9 @@ async function removerMembro(formData: FormData) {
   const supabase = createClient();
   const { data: alvo } = await supabase.from("perfis").select("id, papel").eq("id", id).single();
   if (!alvo || alvo.papel === "dono") return;
-  await createAdmin().auth.admin.deleteUser(id);
+  const admin = createAdmin();
+  if (!admin) redirect(`/equipe?erro=geral&detalhe=${encodeURIComponent(SEM_CHAVE_ADMIN)}`);
+  await admin.auth.admin.deleteUser(id);
   revalidatePath("/equipe");
 }
 
@@ -103,7 +107,7 @@ export default async function Equipe({ searchParams }: { searchParams: { erro?: 
             {p.papel !== "dono" && (
               <form action={removerMembro}>
                 <input type="hidden" name="id" value={p.id} />
-                <button className="btn btn-ghost" style={{ minHeight: 36, padding: "0 14px" }} type="submit">Remover acesso</button>
+                <BotaoConfirmar pergunta={`Remover o acesso de ${p.nome}? A pessoa não vai mais conseguir entrar.`}>Remover acesso</BotaoConfirmar>
               </form>
             )}
           </div>

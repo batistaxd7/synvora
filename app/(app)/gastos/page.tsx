@@ -3,6 +3,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { exigirDono, texto, valor } from "@/lib/perfil";
 import { reais } from "@/lib/pedidos";
+import { falha, sucesso, traduzir } from "@/lib/acoes";
+import Mensagens from "@/components/Mensagens";
+import BotaoConfirmar from "@/components/BotaoConfirmar";
 
 const CATEGORIAS = ["Aluguel", "Fornecedores / mercadoria", "Funcionários", "Água, luz e internet", "Impostos", "Marketing", "Frete", "Taxas de cartão", "Manutenção", "Outros"];
 
@@ -19,24 +22,28 @@ async function salvarGasto(f: FormData) {
   const eu = await exigirDono();
   const v = valor(f.get("valor"));
   const descricao = texto(f, "descricao");
-  if (!descricao || v <= 0) return;
+  if (!descricao) falha("/gastos", "Informe a descrição do gasto.");
+  if (v <= 0) falha("/gastos", "Informe o valor do gasto. Ex.: 150,00");
   const supabase = createClient();
-  await supabase.from("gastos").insert({
+  const { error } = await supabase.from("gastos").insert({
     loja_id: eu.loja_id, descricao, valor: v,
     categoria: texto(f, "categoria") ?? "Outros",
     data: texto(f, "data") ?? new Date().toISOString().slice(0, 10),
     fornecedor_id: texto(f, "fornecedor_id"),
     pago: f.get("pago") === "on",
   });
-  revalidatePath("/gastos");
+  if (error) falha("/gastos", traduzir(error));
   revalidatePath("/financeiro");
+  const data = texto(f, "data");
+  sucesso(data ? `/gastos?mes=${data.slice(0, 7)}` : "/gastos", "Gasto lançado.");
 }
 
 async function alternarPago(f: FormData) {
   "use server";
   await exigirDono();
   const supabase = createClient();
-  await supabase.from("gastos").update({ pago: f.get("pago") !== "true" }).eq("id", String(f.get("id")));
+  const { error } = await supabase.from("gastos").update({ pago: f.get("pago") !== "true" }).eq("id", String(f.get("id")));
+  if (error) falha("/gastos", traduzir(error));
   revalidatePath("/gastos");
 }
 
@@ -44,7 +51,8 @@ async function removerGasto(f: FormData) {
   "use server";
   await exigirDono();
   const supabase = createClient();
-  await supabase.from("gastos").delete().eq("id", String(f.get("id")));
+  const { error } = await supabase.from("gastos").delete().eq("id", String(f.get("id")));
+  if (error) falha("/gastos", traduzir(error));
   revalidatePath("/gastos");
   revalidatePath("/financeiro");
 }
@@ -53,21 +61,23 @@ async function salvarFornecedor(f: FormData) {
   "use server";
   const eu = await exigirDono();
   const nome = texto(f, "nome");
-  if (!nome) return;
+  if (!nome) falha("/gastos", "Informe o nome do fornecedor.");
   const supabase = createClient();
-  await supabase.from("fornecedores").insert({ loja_id: eu.loja_id, nome, telefone: texto(f, "telefone"), email: texto(f, "email"), observacao: texto(f, "observacao") });
-  revalidatePath("/gastos");
+  const { error } = await supabase.from("fornecedores").insert({ loja_id: eu.loja_id, nome, telefone: texto(f, "telefone"), email: texto(f, "email"), observacao: texto(f, "observacao") });
+  if (error) falha("/gastos", traduzir(error));
+  sucesso("/gastos", `Fornecedor "${nome}" cadastrado.`);
 }
 
 async function removerFornecedor(f: FormData) {
   "use server";
   await exigirDono();
   const supabase = createClient();
-  await supabase.from("fornecedores").delete().eq("id", String(f.get("id")));
+  const { error } = await supabase.from("fornecedores").delete().eq("id", String(f.get("id")));
+  if (error) falha("/gastos", traduzir(error));
   revalidatePath("/gastos");
 }
 
-export default async function Gastos({ searchParams }: { searchParams: { mes?: string } }) {
+export default async function Gastos({ searchParams }: { searchParams: { mes?: string; erro?: string; ok?: string } }) {
   await exigirDono();
   const mes = /^\d{4}-\d{2}$/.test(searchParams.mes ?? "") ? searchParams.mes! : mesAtual();
   const supabase = createClient();
@@ -99,7 +109,7 @@ export default async function Gastos({ searchParams }: { searchParams: { mes?: s
         </div>
       </div>
 
-      {error && <div className="erro">Rode o arquivo supabase/modulos.sql no Supabase para liberar esta tela. ({error.message})</div>}
+      <Mensagens erro={searchParams.erro ?? (error ? traduzir(error) : undefined)} ok={searchParams.ok} />
 
       <section className="stats">
         <div className="stat"><span className="muted">Gasto no mês</span><b>{reais(total)}</b></div>
@@ -140,7 +150,7 @@ export default async function Gastos({ searchParams }: { searchParams: { mes?: s
             </form>
             <form action={removerGasto}>
               <input type="hidden" name="id" value={g.id} />
-              <button className="btn btn-ghost btn-sm" type="submit">Excluir</button>
+              <BotaoConfirmar pergunta={`Excluir o gasto "${g.descricao}"?`}>Excluir</BotaoConfirmar>
             </form>
           </div>
         ))}
@@ -167,7 +177,7 @@ export default async function Gastos({ searchParams }: { searchParams: { mes?: s
             </div>
             <form action={removerFornecedor}>
               <input type="hidden" name="id" value={f.id} />
-              <button className="btn btn-ghost btn-sm" type="submit">Remover</button>
+              <BotaoConfirmar pergunta={`Remover o fornecedor "${f.nome}"? Os gastos dele continuam lançados.`}>Remover</BotaoConfirmar>
             </form>
           </div>
         ))}

@@ -86,19 +86,27 @@ alter table public.clientes enable row level security;
 alter table public.pedidos enable row level security;
 alter table public.pedido_itens enable row level security;
 
+drop policy if exists "loja: ver a propria" on public.lojas;
 create policy "loja: ver a propria" on public.lojas for select using (id = public.minha_loja());
+drop policy if exists "loja: dono edita" on public.lojas;
 create policy "loja: dono edita" on public.lojas for update
   using (id = public.minha_loja() and exists (select 1 from public.perfis p where p.id = auth.uid() and p.papel = 'dono'));
 
+drop policy if exists "perfis: ver da loja" on public.perfis;
 create policy "perfis: ver da loja" on public.perfis for select using (loja_id = public.minha_loja());
+drop policy if exists "perfis: editar o proprio" on public.perfis;
 create policy "perfis: editar o proprio" on public.perfis for update using (id = auth.uid());
 
+drop policy if exists "produtos: tudo da loja" on public.produtos;
 create policy "produtos: tudo da loja" on public.produtos for all
   using (loja_id = public.minha_loja()) with check (loja_id = public.minha_loja());
+drop policy if exists "clientes: tudo da loja" on public.clientes;
 create policy "clientes: tudo da loja" on public.clientes for all
   using (loja_id = public.minha_loja()) with check (loja_id = public.minha_loja());
+drop policy if exists "pedidos: tudo da loja" on public.pedidos;
 create policy "pedidos: tudo da loja" on public.pedidos for all
   using (loja_id = public.minha_loja()) with check (loja_id = public.minha_loja());
+drop policy if exists "itens: tudo da loja" on public.pedido_itens;
 create policy "itens: tudo da loja" on public.pedido_itens for all
   using (loja_id = public.minha_loja()) with check (loja_id = public.minha_loja());
 

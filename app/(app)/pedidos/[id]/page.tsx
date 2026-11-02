@@ -5,13 +5,14 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { ETAPAS, FORMAS, dataHora, reais, selo } from "@/lib/pedidos";
 import CancelarPedido from "@/components/CancelarPedido";
+import { traduzir } from "@/lib/acoes";
 
 async function avancar(formData: FormData) {
   "use server";
   const id = String(formData.get("id") ?? "");
   const supabase = createClient();
   const { error } = await supabase.rpc("avancar_pedido", { pedido: id });
-  if (error) redirect(`/pedidos/${id}?erro=${encodeURIComponent(error.message.slice(0, 160))}`);
+  if (error) redirect(`/pedidos/${id}?erro=${encodeURIComponent(traduzir(error))}`);
   revalidatePath("/pedidos");
   revalidatePath(`/pedidos/${id}`);
 }
@@ -22,7 +23,7 @@ async function cancelar(formData: FormData) {
   const devolver = formData.get("devolver") === "sim";
   const supabase = createClient();
   const { error } = await supabase.rpc("cancelar_pedido", { pedido: id, devolver });
-  if (error) redirect(`/pedidos/${id}?erro=${encodeURIComponent(error.message.slice(0, 160))}`);
+  if (error) redirect(`/pedidos/${id}?erro=${encodeURIComponent(traduzir(error))}`);
   revalidatePath("/pedidos");
   revalidatePath("/estoque");
   revalidatePath(`/pedidos/${id}`);

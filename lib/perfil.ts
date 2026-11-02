@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { perfilAtual } from "@/lib/sessao";
+import { lerValor } from "@/lib/dinheiro";
 
 export type Perfil = { id: string; loja_id: string; nome: string; usuario: string; papel: string; email_recuperacao: string | null };
 
@@ -17,9 +18,7 @@ export async function exigirDono(): Promise<Perfil> {
 }
 
 export function valor(txt: FormDataEntryValue | null) {
-  const s = String(txt ?? "").replace(/\s|R\$/g, "");
-  const v = s.includes(",") ? parseFloat(s.replace(/\./g, "").replace(",", ".")) : parseFloat(s);
-  return isFinite(v) ? Math.round(v * 100) / 100 : 0;
+  return lerValor(txt);
 }
 
 export function texto(f: FormData, nome: string) {
