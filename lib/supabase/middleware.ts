@@ -25,9 +25,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // getSession lê o login do cookie (e renova se venceu) sem consultar o Supabase a cada clique.
+  // A conferência de verdade continua no layout (getUser) e nas regras do banco (RLS).
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   const caminho = request.nextUrl.pathname;
   const privada = ROTAS_PRIVADAS.some((r) => caminho.startsWith(r));

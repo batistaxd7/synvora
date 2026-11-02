@@ -1,19 +1,12 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { perfilAtual } from "@/lib/sessao";
 
 export type Perfil = { id: string; loja_id: string; nome: string; usuario: string; papel: string; email_recuperacao: string | null };
 
 export async function meuPerfil(): Promise<Perfil> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-  const { data } = await supabase
-    .from("perfis")
-    .select("id, loja_id, nome, usuario, papel, email_recuperacao")
-    .eq("id", user.id)
-    .single();
+  const data = await perfilAtual();
   if (!data) redirect("/login");
-  return data as Perfil;
+  return data;
 }
 
 // Telas só do dono (gastos, financeiro, planos...). Funcionário volta para o caixa.

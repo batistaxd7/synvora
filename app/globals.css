@@ -12,8 +12,8 @@ select.input{appearance:auto}
 @keyframes sv-side{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
 @keyframes sv-pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 @keyframes sv-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.page-enter>*{animation:sv-in .32s cubic-bezier(.2,.7,.2,1) both}
-.page-enter>*:nth-child(2){animation-delay:.04s}.page-enter>*:nth-child(3){animation-delay:.08s}.page-enter>*:nth-child(4){animation-delay:.12s}.page-enter>*:nth-child(n+5){animation-delay:.16s}
+.page-enter>*{animation:sv-in .2s cubic-bezier(.2,.7,.2,1) both}
+.page-enter>*:nth-child(2){animation-delay:.02s}.page-enter>*:nth-child(3){animation-delay:.04s}.page-enter>*:nth-child(n+4){animation-delay:.06s}
 .page-enter .stat{animation:sv-pop .5s cubic-bezier(.2,.7,.2,1) both}
 .page-enter .stat:nth-child(2){animation-delay:.08s}.page-enter .stat:nth-child(3){animation-delay:.16s}
 ::view-transition-old(root){animation:.22s ease both vt-out}
@@ -142,3 +142,8 @@ html[data-theme="dark"]{--info-bg:#1C2846;--info-ink:#9DB8F2;--danger-bg:#3A1A1C
 .aviso-item:hover{background:var(--accent-soft)}
 .aviso-item.novo{border-left:3px solid var(--accent)}
 @media (max-width:760px){.atendimento{grid-template-columns:1fr}.bolha{max-width:92%}}
+
+/* Carregamento rápido entre páginas */
+.carregando{display:flex;flex-direction:column;gap:16px;animation:sv-in .15s ease both}
+.esq{border-radius:14px;background:linear-gradient(90deg,var(--line-soft) 0%,var(--chip) 50%,var(--line-soft) 100%);background-size:200% 100%;animation:sv-brilho 1.1s linear infinite}
+@keyframes sv-brilho{from{background-position:200% 0}to{background-position:-200% 0}}

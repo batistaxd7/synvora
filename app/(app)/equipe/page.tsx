@@ -2,15 +2,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdmin } from "@/lib/supabase/admin";
+import { perfilAtual } from "@/lib/sessao";
 import { emailInterno, usuarioValido } from "@/lib/usuario";
 
 const PAPEIS: Record<string, string> = { dono: "Dono", vendedor: "Vendedor / Afiliado", caixa: "Caixa" };
 
 async function souDono() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: perfil } = await supabase.from("perfis").select("id, loja_id, papel").eq("id", user.id).single();
+  const perfil = await perfilAtual();
   return perfil && perfil.papel === "dono" ? perfil : null;
 }
 
