@@ -92,3 +92,30 @@ returns boolean language sql stable security definer set search_path = public as
       or exists (select 1 from public.ceos where user_id = auth.uid())
 $$;
 grant execute on function public.sou_atendente() to authenticated;
+
+-- Resposta da equipe sempre sai como "Suporte Synvora", mesmo quando a loja é a sua
+create or replace function public.enviar_suporte(texto_msg text, para_loja uuid default null)
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  eu record;
+  atendente boolean := public.sou_atendente();
+begin
+  select id, loja_id, nome into eu from public.perfis where id = auth.uid();
+  if eu.id is null then raise exception 'Faça login novamente.'; end if;
+  if coalesce(trim(texto_msg), '') = '' then raise exception 'Escreva a mensagem.'; end if;
+  if para_loja is not null then
+    if not atendente then raise exception 'Sem permissão.'; end if;
+    insert into public.suporte_mensagens (loja_id, autor_id, autor_nome, da_equipe, texto)
+    values (para_loja, eu.id, 'Suporte Synvora', true, trim(texto_msg));
+    insert into public.avisos (loja_id, para_id, texto, link)
+    select para_loja, p.id, 'O suporte Synvora respondeu sua mensagem', '/suporte'
+    from public.perfis p where p.loja_id = para_loja and p.papel = 'dono';
+    update public.suporte_mensagens set lida = true where loja_id = para_loja and not da_equipe;
+  else
+    insert into public.suporte_mensagens (loja_id, autor_id, autor_nome, da_equipe, texto)
+    values (eu.loja_id, eu.id, eu.nome, false, trim(texto_msg));
+  end if;
+end;
+$$;
+revoke execute on function public.enviar_suporte(text, uuid) from public, anon;
+grant execute on function public.enviar_suporte(text, uuid) to authenticated;
