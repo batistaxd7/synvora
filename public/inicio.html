@@ -114,14 +114,35 @@ a{color:#C9BEF5}a:hover{color:#FFFFFF}
 @keyframes in-pisca{0%,100%{opacity:.55}50%{opacity:1}}
 @keyframes in-some{to{opacity:0;transform:translate(-50%,10px)}}
 #intro:focus-visible{outline:none}#intro:focus-visible .lg-toque{outline:2px solid #C9BEF5;outline-offset:4px}
+
+/* Botão de entrada junto da logo */
+.lg-anel{position:absolute;left:50%;top:50%;width:250px;height:250px;margin:-125px 0 0 -125px;border-radius:50%;border:1.5px dashed rgba(201,190,245,.35);animation:spin 18s linear infinite;transition:opacity .4s,transform .4s}
+.lg-anel::after{content:"";position:absolute;left:50%;top:-6px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:#fff;box-shadow:0 0 12px 3px #C9BEF5,0 0 26px 8px rgba(132,112,203,.7)}
+.lg-halo{position:absolute;left:50%;top:50%;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;background:radial-gradient(circle,rgba(106,85,181,.35),rgba(106,85,181,0) 70%);animation:in-respira 3s ease-in-out infinite;transition:opacity .4s}
+@keyframes in-respira{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.15);opacity:1}}
+.lg-entrar{position:absolute;left:50%;top:262px;transform:translateX(-50%);padding:2px;border-radius:999px;background:conic-gradient(from var(--ang),#6A55B5,#E9B872,#C9BEF5,#6A55B5);animation:ring 4s linear infinite;transition:opacity .35s,transform .35s;white-space:nowrap}
+.lg-entrar span{display:flex;align-items:center;gap:12px;padding:14px 26px;border-radius:999px;background:#15112A;font-family:'DM Sans',system-ui,sans-serif;font-size:17px;font-weight:700;color:#EEEAF8;letter-spacing:.01em}
+.ondas{display:inline-flex;align-items:flex-end;gap:3px;height:16px}
+.ondas b{display:block;width:3px;border-radius:2px;background:#C9BEF5;animation:in-barra 1s ease-in-out infinite}
+.ondas b:nth-child(1){height:6px}.ondas b:nth-child(2){height:14px;animation-delay:.15s}.ondas b:nth-child(3){height:9px;animation-delay:.3s}.ondas b:nth-child(4){height:12px;animation-delay:.45s}
+@keyframes in-barra{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.ondas b{transform-origin:bottom}
+#intro:hover .lg-caixa,#intro:focus-visible .lg-caixa{transform:scale(1.05);transition:transform .3s}
+#intro:hover .lg-entrar span{background:#1F1A3A}
+#intro:focus-visible .lg-entrar{outline:2px solid #C9BEF5;outline-offset:4px}
+#intro.go .lg-anel{opacity:0;transform:scale(.6)}
+#intro.go .lg-halo{opacity:0}
+#intro.go .lg-entrar{opacity:0;transform:translate(-50%,16px)}
 body.na-intro{overflow:hidden}
 body.na-intro .rise,body.na-intro .pop{animation-play-state:paused}
 @media (prefers-reduced-motion: reduce){#intro{display:none}}
 </style>
 </head>
 <body class="na-intro">
-<button type="button" id="intro" aria-label="Pular abertura">
+<button type="button" id="intro" aria-label="Entrar no Synvora">
 <div class="lg">
+<div class="lg-halo"></div><div class="lg-anel"></div>
+<div class="lg-entrar"><span><span class="ondas" aria-hidden="true" style="padding:0;background:none"><b></b><b></b><b></b><b></b></span>Entrar no Synvora</span></div>
 <div class="lg-onda o1"></div><div class="lg-onda o2"></div><div class="lg-onda o3"></div>
 <div class="lg-caixa"><div class="lg-bg"></div>
 <svg class="s" viewBox="0 0 34 34" aria-hidden="true"><path class="lg-s" d="M22 11.5c-1.2-1.3-3-2-5-2-3 0-5 1.6-5 3.8 0 4.9 10 2.9 10 7.6 0 2.2-2.2 3.8-5.2 3.8-2.2 0-4.1-.8-5.3-2.2" fill="none" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
@@ -461,7 +482,7 @@ var el=document.getElementById('intro');if(!el)return;
 var reduz=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function fim(){document.body.classList.remove('na-intro');el.classList.add('sai');setTimeout(function(){el.remove()},800)}
 if(reduz){fim();return}
-var foi=false,auto=setTimeout(function(){go(true)},1300);
+var foi=false,auto=setTimeout(function(){go(true)},9000);
 function sons(){try{
   var C=new(window.AudioContext||window.webkitAudioContext)();if(C.state!=='running'){C.resume();}var t=C.currentTime+.02,M=C.createGain();M.gain.value=.55;M.connect(C.destination);
   function ruido(d){var b=C.createBuffer(1,C.sampleRate*d,C.sampleRate),x=b.getChannelData(0);for(var i=0;i<x.length;i++)x[i]=Math.random()*2-1;var s=C.createBufferSource();s.buffer=b;return s}
