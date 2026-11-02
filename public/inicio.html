@@ -120,7 +120,7 @@ body.na-intro .rise,body.na-intro .pop{animation-play-state:paused}
 </style>
 </head>
 <body class="na-intro">
-<button type="button" id="intro" aria-label="Abrir a apresentação do Synvora">
+<button type="button" id="intro" aria-label="Pular abertura">
 <div class="lg">
 <div class="lg-onda o1"></div><div class="lg-onda o2"></div><div class="lg-onda o3"></div>
 <div class="lg-caixa"><div class="lg-bg"></div>
@@ -129,7 +129,7 @@ body.na-intro .rise,body.na-intro .pop{animation-play-state:paused}
 <div class="respingo"><i style="--a:-170deg;--d:120px"></i><i style="--a:-130deg;--d:150px"></i><i style="--a:-95deg;--d:130px"></i><i style="--a:-55deg;--d:160px"></i><i style="--a:-15deg;--d:125px"></i><i style="--a:25deg;--d:145px"></i><i style="--a:70deg;--d:115px"></i><i style="--a:115deg;--d:140px"></i><i style="--a:150deg;--d:125px"></i><i style="--a:195deg;--d:110px"></i></div>
 <div class="lg-giro"><div class="gota g3"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div><div class="gota g2"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div><div class="gota g1"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div><div class="gota"><svg viewBox="0 0 26 38" aria-hidden="true"><path d="M13 0C13 0 2 17 2 26a11 11 0 0 0 22 0C24 17 13 0 13 0z" fill="#fff"/></svg></div></div>
 <div class="lg-nome">Synvora</div>
-<div class="lg-toque"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/></svg>Toque para abrir</div>
+
 </div>
 </button>
 
@@ -461,9 +461,9 @@ var el=document.getElementById('intro');if(!el)return;
 var reduz=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function fim(){document.body.classList.remove('na-intro');el.classList.add('sai');setTimeout(function(){el.remove()},800)}
 if(reduz){fim();return}
-var foi=false,auto=setTimeout(function(){go(false)},6000);
+var foi=false,auto=setTimeout(function(){go(true)},1300);
 function sons(){try{
-  var C=new(window.AudioContext||window.webkitAudioContext)(),t=C.currentTime+.02,M=C.createGain();M.gain.value=.55;M.connect(C.destination);
+  var C=new(window.AudioContext||window.webkitAudioContext)();if(C.state!=='running'){C.resume();}var t=C.currentTime+.02,M=C.createGain();M.gain.value=.55;M.connect(C.destination);
   function ruido(d){var b=C.createBuffer(1,C.sampleRate*d,C.sampleRate),x=b.getChannelData(0);for(var i=0;i<x.length;i++)x[i]=Math.random()*2-1;var s=C.createBufferSource();s.buffer=b;return s}
   // giro: vento subindo de tom e de força
   var n=ruido(1.6),f=C.createBiquadFilter(),g=C.createGain();f.type='bandpass';f.Q.value=3;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(2600,t+1.5);
