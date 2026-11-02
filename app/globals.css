@@ -57,3 +57,49 @@ select.input{appearance:auto}
 .auth .card{width:100%;max-width:420px;padding:32px;display:flex;flex-direction:column;gap:20px;animation:sv-pop .4s cubic-bezier(.2,.7,.2,1) both}
 @media (max-width:760px){.shell{flex-direction:column}.side{width:100%!important;position:static}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* Etapa 2: caixa, pedidos e recibo */
+:root{--info-bg:#E8EEFB;--info-ink:#2D4C8F;--danger-bg:#FDECEA}
+html[data-theme="dark"]{--info-bg:#1C2846;--info-ink:#9DB8F2;--danger-bg:#3A1A1C}
+.badge-info{background:var(--info-bg);color:var(--info-ink)}
+.badge-danger{background:var(--danger-bg);color:var(--danger)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.caixa-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,1fr);gap:16px;align-items:start}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.prod-tile{display:flex;flex-direction:column;gap:4px;min-height:112px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);text-align:left;font-family:inherit;cursor:pointer;transition:border-color .18s,transform .15s,box-shadow .18s}
+.prod-tile:hover{border-color:var(--accent);box-shadow:0 8px 18px rgba(80,50,160,.14)}
+.prod-tile:active{transform:scale(.97)}
+.prod-tile:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn.qtd{width:36px;height:36px;border:1px solid var(--line-strong);font-size:18px;font-weight:700}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed}
+.total-box{min-height:48px;display:flex;align-items:center;padding:0 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);font-size:20px;font-weight:700}
+.resumo{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;align-items:center}
+.resumo b{text-align:right}
+.chip{padding:8px 14px;border-radius:99px;background:var(--chip);color:var(--ink2);font-size:13px;font-weight:600;transition:background-color .18s}
+.chip:hover{background:var(--accent-soft)}
+.chip.ativo{background:var(--accent);color:#fff}
+.etapas{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;counter-reset:e}
+.etapas li{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-size:13px;font-weight:600;color:var(--muted);position:relative}
+.etapas li:not(:last-child)::after{content:"";position:absolute;top:17px;left:calc(50% + 22px);right:calc(-50% + 22px);height:3px;border-radius:3px;background:var(--line)}
+.etapas li.feita:not(:last-child)::after{background:var(--accent-bar);transform-origin:left;animation:sv-grow .5s ease both}
+.etapas .ponto{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--chip);color:var(--muted);font-weight:700}
+.etapas li.feita .ponto{background:var(--accent);color:#fff}
+.etapas li.atual .ponto{background:var(--accent-soft);color:var(--accent-ink);box-shadow:0 0 0 3px var(--accent)}
+.etapas li.atual,.etapas li.feita{color:var(--ink)}
+.etapas li.cancelada{opacity:.45}
+.dialogo{border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--surface);color:var(--ink);width:min(420px,calc(100vw - 32px))}
+.dialogo[open]{animation:sv-pop .22s ease both}
+.dialogo::backdrop{background:rgba(20,14,40,.5)}
+.recibo{display:flex;flex-direction:column;align-items:center;padding:24px 16px;min-height:100vh}
+.recibo-papel{width:100%;max-width:320px;background:#fff;color:#111;padding:18px;border-radius:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.recibo-papel hr{border:none;border-top:1px dashed #999;margin:10px 0}
+.recibo-papel .linha{display:flex;justify-content:space-between;gap:8px}
+@media (max-width:900px){.caixa-grid{grid-template-columns:1fr}.caixa-grid>section:last-child{position:static!important}}
+@media (max-width:560px){.etapas{grid-template-columns:1fr;gap:10px}.etapas li{flex-direction:row;text-align:left}.etapas li:not(:last-child)::after{display:none}}
+@media print{
+  html,body{background:#fff!important;background-image:none!important}
+  .nao-imprimir{display:none!important}
+  .recibo{padding:0;min-height:0}
+  .recibo-papel{box-shadow:none;max-width:80mm;padding:0}
+  @page{margin:6mm}
+}

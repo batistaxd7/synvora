@@ -7,8 +7,8 @@ type Item = { label: string; href: string; icon: string; donoSo?: boolean; breve
 
 const ITENS: Item[] = [
   { label: "Painel", href: "/painel", icon: "M3 11l9-8 9 8M5 10v10h14V10" },
-  { label: "Frente de caixa", href: "/em-breve/caixa", icon: "M9 20h.01M18 20h.01M2 3h3l2.5 12h11L21 7H6", breve: true },
-  { label: "Pedidos", href: "/em-breve/pedidos", icon: "M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1zM8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 12h6M9 16h4", breve: true },
+  { label: "Frente de caixa", href: "/caixa", icon: "M9 20h.01M18 20h.01M2 3h3l2.5 12h11L21 7H6" },
+  { label: "Pedidos", href: "/pedidos", icon: "M9 3h6a1 1 0 0 1 1 1v2H8V4a1 1 0 0 1 1-1zM8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 12h6M9 16h4" },
   { label: "Clientes", href: "/em-breve/clientes", icon: "M3 5h18v14H3zM8 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 17c.5-2 2-3 3-3s2.5 1 3 3M14 9h5M14 13h5", breve: true },
   { label: "Estoque", href: "/estoque", icon: "M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10" },
   { label: "Gastos", href: "/em-breve/gastos", icon: "M6 2h12v20l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3", donoSo: true, breve: true },
