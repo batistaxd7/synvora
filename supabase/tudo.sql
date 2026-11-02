@@ -802,6 +802,14 @@ order by p.criado_em
 limit 1
 on conflict do nothing;
 
+-- O CEO também atende o suporte (vê e responde as conversas de todas as lojas)
+create or replace function public.sou_atendente()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.atendentes where user_id = auth.uid())
+      or exists (select 1 from public.ceos where user_id = auth.uid())
+$$;
+grant execute on function public.sou_atendente() to authenticated;
+
 -- ================================================================
 -- catalogo.sql
 -- ================================================================
@@ -865,7 +873,7 @@ grant execute on function public.numeros_publicos() to anon, authenticated;
 -- ================================================================
 -- Marca a versão do banco. O sistema confere isto e avisa no Painel se faltar atualizar.
 create or replace function public.versao_banco()
-returns integer language sql stable as $$ select 7 $$;
+returns integer language sql stable as $$ select 8 $$;
 grant execute on function public.versao_banco() to anon, authenticated;
 
 -- Faz o Supabase enxergar na hora as tabelas e funções novas

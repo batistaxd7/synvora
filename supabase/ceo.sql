@@ -84,3 +84,11 @@ where p.papel = 'dono' and not exists (select 1 from public.ceos)
 order by p.criado_em
 limit 1
 on conflict do nothing;
+
+-- O CEO também atende o suporte (vê e responde as conversas de todas as lojas)
+create or replace function public.sou_atendente()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.atendentes where user_id = auth.uid())
+      or exists (select 1 from public.ceos where user_id = auth.uid())
+$$;
+grant execute on function public.sou_atendente() to authenticated;
