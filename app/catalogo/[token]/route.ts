@@ -14,7 +14,6 @@ export async function GET(request: Request, { params }: { params: { token: strin
   const { data, error } = await createPublico().rpc("catalogo_publico", { token: params.token });
   if (error) return new Response("Catálogo indisponível", { status: 503 });
   const itens = ((data ?? []) as Item[]).filter((p) => p.foto_url && Number(p.preco) > 0);
-  if (!itens.length && !(data ?? []).length) return new Response("Catálogo não encontrado", { status: 404 });
 
   const origem = new URL(request.url).origin;
   const linhas = [["id", "title", "description", "availability", "condition", "price", "link", "image_link", "brand"].join(",")];
