@@ -63,6 +63,8 @@ a{color:#C9BEF5}a:hover{color:#FFFFFF}
 *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
 .rise,.pop,.toast{opacity:1}
 }
+.so-cel{display:none}
+@media (max-width:760px){.so-pc{display:none}.so-cel{display:block}}
 </style>
 </head>
 <body>
@@ -226,17 +228,18 @@ a{color:#C9BEF5}a:hover{color:#FFFFFF}
 </div>
 </section>
 
-<!-- Vídeo de apresentação -->
+<!-- Vídeo de apresentação: deitado no computador, em pé no celular -->
 <section id="video" style="position: relative; max-width: 1200px; margin: 0 auto; padding: 100px 24px 20px">
-<div class="reveal" style="display: flex; flex-wrap: wrap; gap: 48px; align-items: center; justify-content: center">
-<div style="flex: 1 1 340px; min-width: 0; max-width: 520px">
+<div class="reveal" style="text-align: center; max-width: 720px; margin: 0 auto">
 <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #A898E8">Em 1 minuto</p>
 <h2 style="margin: 0; font-family: Sora, sans-serif; font-size: clamp(30px, 3.8vw, 50px); line-height: 1.08; letter-spacing: -.03em">Veja o Synvora funcionando.</h2>
-<p style="margin: 18px 0 0; font-size: 17px; line-height: 1.6; color: #B9B2D6">Caixa, estoque, pedidos, Facebook e Instagram, equipe e suporte. Tudo o que sua loja precisa, mostrado do jeito que você vai usar.</p>
+<p style="margin: 18px 0 0; font-size: 17px; line-height: 1.6; color: #B9B2D6">Caixa, estoque, pedidos, Facebook e Instagram, equipe e suporte. Toque no som para ouvir.</p>
 </div>
-<div class="floaty" style="flex: 0 0 auto; width: min(340px, 86vw); aspect-ratio: 9 / 16; border-radius: 36px; padding: 10px; background: #1B1633; border: 1px solid rgba(201,190,245,.25); box-shadow: 0 40px 100px rgba(0,0,0,.55), 0 0 0 8px rgba(106,85,181,.1)">
-<video src="/synvora-apresentacao.mp4" autoplay muted loop playsinline controls preload="metadata" aria-label="Vídeo de apresentação do Synvora" style="width: 100%; height: 100%; display: block; border-radius: 28px; object-fit: cover; background: #0F0B1F"></video>
+<div class="reveal so-pc" style="margin: 44px auto 0; max-width: 1040px; border-radius: 28px; padding: 10px; background: #1B1633; border: 1px solid rgba(201,190,245,.25); box-shadow: 0 40px 100px rgba(0,0,0,.55), 0 0 0 8px rgba(106,85,181,.1)">
+<video data-src="/synvora-apresentacao-deitado.mp4" muted loop playsinline controls preload="none" aria-label="Vídeo de apresentação do Synvora" style="width: 100%; aspect-ratio: 16 / 9; display: block; border-radius: 20px; background: #0F0B1F"></video>
 </div>
+<div class="reveal so-cel floaty" style="margin: 40px auto 0; width: min(340px, 86vw); aspect-ratio: 9 / 16; border-radius: 36px; padding: 10px; background: #1B1633; border: 1px solid rgba(201,190,245,.25); box-shadow: 0 40px 100px rgba(0,0,0,.55)">
+<video data-src="/synvora-apresentacao.mp4" muted loop playsinline controls preload="none" aria-label="Vídeo de apresentação do Synvora" style="width: 100%; height: 100%; display: block; border-radius: 28px; object-fit: cover; background: #0F0B1F"></video>
 </div>
 </section>
 
@@ -380,6 +383,12 @@ requestAnimationFrame(passo)})}).catch(function(){})})();
 if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;el.textContent='0';
 function passo(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/2200),e=1-Math.pow(1-p,3);el.textContent=Math.round(alvo*e).toLocaleString('pt-BR');if(p<1)requestAnimationFrame(passo)}
 setTimeout(function(){requestAnimationFrame(passo)},800)})})();
+</script>
+<script>
+(function(){var cel=window.matchMedia('(max-width:760px)').matches;var v=document.querySelector((cel?'.so-cel':'.so-pc')+' video');
+v.src=v.getAttribute('data-src');v.preload='metadata';
+v.addEventListener('error',function(){if(!cel&&v.src.indexOf('deitado')>-1){v.src='/synvora-apresentacao.mp4';v.style.objectFit='contain'}},true);
+if('IntersectionObserver' in window){new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){var p=v.play();p&&p.catch(function(){})}else{v.pause()}})},{threshold:.4}).observe(v)}else{v.autoplay=true}})();
 </script>
 </body>
 </html>
